@@ -1,0 +1,109 @@
+.Main {
+  width: 900px;
+}
+
+.GameCreateForm, .PlayerCreateForm, .GameDetails-gameDetails {
+  border-width: 2px;
+  border-style: solid;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  padding: 5px;
+}
+
+/* .PlayerCreateForm form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+} */
+
+.GameCreateForm-title, .PlayerCreateForm-title, .GameDetails-gameDetails-title {
+  font-size: 1.1em;
+  margin-bottom: 8px;
+}
+
+.GameCreateForm-label {
+  width: 100px;
+  margin-right: 5px;
+  display: inline-block;
+}
+
+.PlayerCreateForm-label {
+  width: 120px;
+  margin-right: 5px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.PlayerCreateForm-element, .GameCreateForm-element {
+  margin-bottom: 4px;
+}
+
+.GameCreateForm-input {
+  width: 50px;
+}
+
+.PlayerCreateForm-inputColor {
+  width: 50px;
+  block-size: 21px;
+}
+
+.PlayerCreateForm-inputCheckBox {
+  vertical-align: middle;
+}
+
+.GameCreateForm-button, .PlayerCreateForm-button, .GameDetails-gameDetails-button {
+  margin-top: 8px;
+  margin-bottom: 2px;
+  margin-right: 5px;
+  font-size: 0.9em;
+}
+
+.GameList, .PlayerList {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.GameList-list, .PlayerList {
+  border-width: 2px;
+  border-style: solid;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  padding: 5px;
+}
+
+.GameList-table, .PlayerList-table {
+  border-collapse: collapse;
+}
+
+.GameList-table td, .PlayerList-table td {
+  padding: 2px 8px;
+}
+
+.GameList-title, .PlayerList-title {
+  font-size: 1.1em;
+  margin-bottom: 3px;
+}
+
+.GameList-subTitle {
+  font-size: 0.8em;
+  margin-bottom: 8px;
+}
+
+.GameDetailsPropertyList-prop {
+  width: 100px;
+  display: inline-block;
+}
+
+.GameDetailsPropertyList-val {
+  margin-left: 5px;
+  color: blue;
+}
+
+.PlayGame-manageButtons {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.PlayGame-manageButtons-button {
+  margin-right: 5px;
+}

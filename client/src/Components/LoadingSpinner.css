@@ -1,0 +1,27 @@
+.LoadingSpinner-spinner {
+  width: 10px;
+  height: 10px;
+  border-width: 4px;
+  border-color: blue;
+  border-top: 4px solid white;
+  border-style: solid;
+  border-radius: 50%;
+  animation: rotation 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 4px;
+  margin-left: 10px;
+}
+
+.LoadingSpinner-text {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  } 100% {
+    transform: rotate(360deg);
+  }
+}

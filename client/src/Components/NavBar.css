@@ -1,0 +1,36 @@
+.NavBar {
+  margin-bottom: 10px;
+  padding: 5px;
+  /* background-color: rgb(233, 233, 233); */
+  height: 1.2em;
+  font-size: 1.2em;
+  /* border-width: 1px;
+  border-style: solid;
+  border-color: darkgrey; */
+}
+
+.NavBar-link {
+  border: 1px;
+  border-style: solid;
+  border-color: black;
+  border-radius: 5px;
+  padding: 3px 12px;
+  margin: 0px 3px;
+  background-color: rgb(233, 233, 233);
+  transition: background-color 0.3s;
+}
+
+.NavBar-link:hover {
+  background-color: rgb(176, 176, 176);
+}
+
+.NavBar a {
+  text-decoration: none;
+  cursor: pointer;
+  color: blue;
+}
+
+/* .NavBar a:hover {
+  color: darkblue;
+  font-weight: bold;
+} */

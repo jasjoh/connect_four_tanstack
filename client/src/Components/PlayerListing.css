@@ -1,0 +1,15 @@
+.PlayerListing-td, .PlayerListing-td-button {
+  padding: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.PlayerListing-td {
+  border-width: 1px;
+  border-style: solid;
+}
+
+/* .PlayerListing-tr:hover {
+  background-color: lightgray;
+  cursor: pointer;
+} */

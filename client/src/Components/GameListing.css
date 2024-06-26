@@ -1,0 +1,12 @@
+.GameListing-td {
+  border-width: 1px;
+  border-style: solid;
+  padding: 2px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.GameListing-tr:hover {
+  background-color: lightgray;
+  cursor: pointer;
+}

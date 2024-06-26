@@ -1,0 +1,11 @@
+
+
+/* top-row is the row of clickable cells to drop pieces into a column */
+
+.BoardDropRow td {
+  border: dashed 1px lightgray;
+}
+
+.BoardDropRow td:hover {
+  background-color: gold;
+}

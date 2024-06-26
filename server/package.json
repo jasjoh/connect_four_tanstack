@@ -1,0 +1,39 @@
+{
+  "dependencies": {
+    "@google/generative-ai": "^0.11.4",
+    "@types/cors": "^2.8.17",
+    "@types/lodash": "^4.17.0",
+    "@types/uuid": "^9.0.8",
+    "cors": "^2.8.5",
+    "express": "^5.0.0-beta.1",
+    "lodash": "^4.17.21",
+    "pg": "^8.11.3",
+    "uuid": "^9.0.1"
+  },
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/server.js",
+    "dev": "nodemon src/server.ts",
+    "live": "npx tsc && npm run start"
+  },
+  "name": "connect_four_express",
+  "description": "Goal: Transition the Game model and logic from the client to the server",
+  "version": "1.0.0",
+  "main": "src/server.ts",
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.12",
+    "@types/pg": "^8.10.9",
+    "@types/supertest": "^6.0.2",
+    "axios": "^1.6.5",
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.4",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
