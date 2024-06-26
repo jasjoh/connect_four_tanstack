@@ -1,12 +1,11 @@
-## Connect Four Super
-#### A highly evolved re-write of a vanilla JS bootcamp connect four game exercise.
+## Connect Four - TanStack Refactor
+#### A refactor of my previous Connect Four Super project
 ##### Key Features
-- Local Multiplayer Connect Four Games
-- Server-Authoritative Game State + Polling Game Updates
-- AI (Rudimentary) Players with Fully-Automated Play
+- Leverages TanStack to manage all client -> server communications
 
 ##### Stack
 - React Front-End
+- TanStack
 - Node.js / Express.js Back-End
 - TypeScript (server)
 - PostgreSQL Database
