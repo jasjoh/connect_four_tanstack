@@ -15,13 +15,20 @@
 - Factory Functions to support testing
 
 ### Local Setup / How To Run / How to Test
-- run `npm install` in /client to install client dependencies
-- run `npm install` in /server to install server dependencies
-- install postgresql (V14.8 or later)
-- setup databases: `psql -f /server/connect-four-init.sql` and accept prompts
-- run the server in dev mode (`node srv/server/ts`) or retail (`npx tsc` to build then `node dist/server.js` to run server)
-- server runs at `http://localhost:3000/`
-- to test server, from `/server` run `jest`
+- use `npm install` in /client to install client dependencies
+- use `npm install` in /server to install server dependencies
+- install postgresql (V14.8 or later) and start it
+- setup databases using: `psql -f /server/connect-four-init.sql` and accept prompts
+
+## Server Execution
+- run the server in dev mode, use `/server/npm run dev`
+- run the server in retail, use `/server/npm run live`
+- server runs at `http://localhost:3001/`
+- to test server, use `/server/jestrun`
+
+## Client Execution
+- run the server in dev mode, use `/client/npm run start`
+- use `npm run build` to create a build folder for deployment
 
 ##### Future Feature Ideas
 - add identity and auth
