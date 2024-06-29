@@ -1,13 +1,33 @@
 import { delay } from "./utils";
-import ConnectFourServerApi from "./server";
+import * as C4Server from "./server";
 
 const updateTurnsDelayInMs = 500;
 const renderTurnsDelayInMs = 1000;
 
+export interface ClientBoardCell {
+  playerId: string | null;
+  highlight: boolean;
+}
+
+export type ClientBoard = ClientBoardCell[][];
+
 /** Provides functionality for managing the board state associated with a game */
 export class GameManager {
 
-  constructor(gameId, forceReRender) {
+  gameId: string;
+  forceReRender: () => void;
+  isPolling: boolean;
+  pollForTurns: boolean;
+  server: C4Server.Server | undefined;
+  game: C4Server.GameAndTurns | undefined;
+  gameState: number | undefined;
+  currPlayerId: string | undefined;
+  players: C4Server.Player[] | undefined;
+  clientBoard: ClientBoard | undefined;
+  clientTurns: C4Server.GameTurn[] | undefined;
+  clientTurnIdsSet: Set<number> | undefined;
+
+  constructor(gameId : string, forceReRender : () => void) {
     this.gameId = gameId;
     this.forceReRender = forceReRender;
 
@@ -16,9 +36,10 @@ export class GameManager {
 
     this.clientTurns = undefined;
     this.clientTurnIdsSet = undefined;
-    this.latestServerTurns = undefined; // debug data to be removed
+    // this.latestServerTurns = undefined; // debug data to be removed
+    this.server = undefined;
     this.game = undefined;
-    this.board = undefined;
+    this.clientBoard = undefined;
     this.gameState = undefined;
     this.players = undefined;
     this.currPlayerId = undefined;
@@ -31,13 +52,19 @@ export class GameManager {
    */
   async initialize() {
     // console.log("GameManager.initialize() called.")
+    this.server = C4Server.Server.getInstance();
     await this._updateLocalGame();
-    this.board = this._initializeClientBoard();
+    this.clientBoard = this._initializeClientBoard();
     this._gameEnding();
+
+    if (this.game === undefined) {
+      throw new Error("Game is undefined.")
+    }
     this.clientTurns = this.game.gameTurns;
     this.clientTurnIdsSet = new Set(this.clientTurns.map(turn => turn.turnId));
     // console.log("initial client turn ids:", this.clientTurnIdsSet);
-    this.players = await ConnectFourServerApi.getPlayersForGame(this.gameId);
+
+    this.players = await this.server.getPlayersForGame(this.gameId);
     if (this.gameState === 1) {
       this.enablePolling();
     }
@@ -46,8 +73,11 @@ export class GameManager {
   /** Internal function for GameManager
   * Fetches an updated version of the game and populates (refreshes) local state
   */
-  async _updateLocalGame() {
-    this.game = await ConnectFourServerApi.getGame(this.gameId);
+  private async _updateLocalGame() : Promise<void> {
+    if (this.server === undefined) {
+      throw new Error('Unable to update local game as this.server is undefined')
+    }
+    this.game = await this.server.getGame(this.gameId);
     this.gameState = this.game.gameData.gameState;
     this.currPlayerId = this.game.gameData.currPlayerId;
   }
@@ -56,7 +86,7 @@ export class GameManager {
    * Conductor function to handle all operations that take place during
    * a polling session including any callbacks to React to re-render if needed
    */
-  async _conductPoll() {
+  private async _conductPoll() {
     // console.log("GameManager._conductPoll() called");
     const newTurns = await this._getNewTurns();
     // console.log("newTurns:", newTurns);
@@ -66,7 +96,7 @@ export class GameManager {
       this.clientTurnIdsSet.add(turn.turnId);
       // console.log("clientTurnsSet updated with new turn:", this.clientTurnsSet);
       this._updateBoardWithTurn(turn);
-      // console.log("board updated with new turn:", this.board);
+      // console.log("board updated with new turn:", this.clientBoard);
       this.forceReRender(); // call callback to re-render
       await delay(renderTurnsDelayInMs);
     }
@@ -82,7 +112,7 @@ export class GameManager {
    * against a provided list of serverTurns and returning any server turns
    * not found in the client turns list.
    */
-  async _getNewTurns() {
+  private async _getNewTurns() {
     await this._updateLocalGame();
     // console.log("clientTurnIdsSet prior to identifying new turns:", this.clientTurnIdsSet);
     const newTurns = this.game.gameTurns.filter(turn => !this.clientTurnIdsSet.has(turn.turnId));
@@ -94,17 +124,20 @@ export class GameManager {
    * Initializes a client-side representation of the game board on construction
    * Returns boardData: [ [ { playerId, validCoordSets } ] ]
   */
-  _initializeClientBoard() {
+  private _initializeClientBoard() : ClientBoard {
+    if (this.game === undefined) {
+      throw new Error("Game is undefined.")
+    }
     // console.log("initializeClientBoard called with boardData:", boardData);
     const board = [];
     for (let row of this.game.gameData.boardData) {
       const clientRow = [];
       for (let col of row) {
-        const tileState = {
+        const clientBoardCell : ClientBoardCell= {
           playerId: col.playerId,
           highlight: false
         }
-        clientRow.push(tileState);
+        clientRow.push(clientBoardCell);
       }
       board.push(clientRow);
     }
@@ -112,15 +145,15 @@ export class GameManager {
   }
 
   /** Internal function for GameManager
-   * Updates this.board with the provided turn object:
+   * Updates this.clientBoard with the provided turn object:
    * { turnId, location, playerId, gameId, createdOnMs } */
-  _updateBoardWithTurn(turn) {
-    this.board[turn.location[0]][turn.location[1]].playerId = turn.playerId;
+  private _updateBoardWithTurn(turn) {
+    this.clientBoard[turn.location[0]][turn.location[1]].playerId = turn.playerId;
   }
 
   /** Internal function for GameManager
    * Checks for and handles games which are won or tied */
-  _gameEnding() {
+  private _gameEnding() {
     if (this.gameState === 2) {
       // game is won
       this.pollForTurns = false;
@@ -152,13 +185,13 @@ export class GameManager {
       console.log("WARNING: Piece dropped while game is not in STARTED state.");
       return;
     }
-    await ConnectFourServerApi.dropPiece(this.gameId, this.currPlayerId, column);
+    await C4Server.dropPiece(this.gameId, this.currPlayerId, column);
     await this._conductPoll();
   }
 
   /** Starts (or re-starts) the game associated with this game manager */
   async startGame() {
-    await ConnectFourServerApi.startGame(this.gameId);
+    await C4Server.startGame(this.gameId);
     await this.initialize();
     this.forceReRender();
   }
@@ -166,7 +199,7 @@ export class GameManager {
   /** Deletes the game associated with this game manager */
   async deleteGame() {
     this.disablePolling();
-    await ConnectFourServerApi.deleteGame(this.gameId);
+    await C4Server.deleteGame(this.gameId);
   }
 
   /** Enables polling and initiates polling (via this._poll()) */
@@ -188,7 +221,7 @@ export class GameManager {
    * Polling function which calls this.updateTurns() and then
    * awaits updateTurnsDelayInMs to transpire before calling again.
    */
-  async _poll() {
+  private async _poll() {
     while (this.pollForTurns) {
       await this._conductPoll();
       await delay(updateTurnsDelayInMs);
