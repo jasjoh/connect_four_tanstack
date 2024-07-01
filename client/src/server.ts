@@ -216,7 +216,7 @@ export class Server {
   /** Attempts to drop a piece
    * Expects a game ID, player ID and the column of where to drop the piece.
    * Returns undefined if successful and throws error otherwise */
-  async dropPiece(gameId: string, playerId: number, col: number) : Promise<void> {
+  async dropPiece(gameId: string, playerId: string, col: number) : Promise<void> {
     await this._request(
       `games/${gameId}/cols/${col}`, { playerId: playerId }, 'POST'
     );
@@ -243,6 +243,14 @@ export class Server {
   async removePlayerFromGame(gameId: string, playerId: string) : Promise<void> {
     await this._request(`games/${gameId}/players/${playerId}`, {}, 'DELETE' );
     // console.log("removed player response:", data);
+    return undefined;
+  }
+
+  /** Deletes a game
+   * Returns undefined if successful and throws error otherwise */
+  async deleteGame(gameId: string) : Promise<void> {
+    await this._request(`games/${gameId}`, {}, 'DELETE' );
+    // console.log("deleted game response:", data);
     return undefined;
   }
 

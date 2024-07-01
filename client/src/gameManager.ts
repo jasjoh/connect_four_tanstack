@@ -14,7 +14,7 @@ export type ClientBoard = ClientBoardCell[][];
 /** Provides functionality for managing the board state associated with a game */
 export class GameManager {
 
-  gameId: string;
+  gameId: string | undefined;
   forceReRender: () => void;
   isPolling: boolean;
   pollForTurns: boolean;
@@ -57,14 +57,11 @@ export class GameManager {
     this.clientBoard = this._initializeClientBoard();
     this._gameEnding();
 
-    if (this.game === undefined) {
-      throw new Error("Game is undefined.")
-    }
-    this.clientTurns = this.game.gameTurns;
+    this.clientTurns = this.game!.gameTurns;
     this.clientTurnIdsSet = new Set(this.clientTurns.map(turn => turn.turnId));
     // console.log("initial client turn ids:", this.clientTurnIdsSet);
 
-    this.players = await this.server.getPlayersForGame(this.gameId);
+    this.players = await this.server.getPlayersForGame(this.gameId!);
     if (this.gameState === 1) {
       this.enablePolling();
     }
@@ -74,10 +71,10 @@ export class GameManager {
   * Fetches an updated version of the game and populates (refreshes) local state
   */
   private async _updateLocalGame() : Promise<void> {
-    if (this.server === undefined) {
-      throw new Error('Unable to update local game as this.server is undefined')
+    if (this.gameId === undefined) {
+      throw new Error("Game ID is undefined. Was game deleted? Use setGameAndInitialize().")
     }
-    this.game = await this.server.getGame(this.gameId);
+    this.game = await this.server!.getGame(this.gameId);
     this.gameState = this.game.gameData.gameState;
     this.currPlayerId = this.game.gameData.currPlayerId;
   }
@@ -86,14 +83,14 @@ export class GameManager {
    * Conductor function to handle all operations that take place during
    * a polling session including any callbacks to React to re-render if needed
    */
-  private async _conductPoll() {
+  private async _conductPoll() : Promise<void> {
     // console.log("GameManager._conductPoll() called");
     const newTurns = await this._getNewTurns();
     // console.log("newTurns:", newTurns);
     for (let turn of newTurns) {
       // console.log("updating client turn array and board with new turn");
-      this.clientTurns.push(turn);
-      this.clientTurnIdsSet.add(turn.turnId);
+      this.clientTurns!.push(turn);
+      this.clientTurnIdsSet!.add(turn.turnId);
       // console.log("clientTurnsSet updated with new turn:", this.clientTurnsSet);
       this._updateBoardWithTurn(turn);
       // console.log("board updated with new turn:", this.clientBoard);
@@ -108,21 +105,21 @@ export class GameManager {
   }
 
   /** Internal function for GameManager
-   * Returns the set of new turns based on comparing this.clientTurnsSet
-   * against a provided list of serverTurns and returning any server turns
-   * not found in the client turns list.
+   * Triggers an update to local game state and the compares old client state
+   * against new client state to determine new turns that have transpired.
+   * Returns any newly detected turns as GameTurn[]   *
    */
-  private async _getNewTurns() {
+  private async _getNewTurns() : Promise<C4Server.GameTurn[]>  {
     await this._updateLocalGame();
     // console.log("clientTurnIdsSet prior to identifying new turns:", this.clientTurnIdsSet);
-    const newTurns = this.game.gameTurns.filter(turn => !this.clientTurnIdsSet.has(turn.turnId));
+    const newTurns = this.game!.gameTurns.filter(turn => !this.clientTurnIdsSet!.has(turn.turnId));
     // console.log("server turns retrieved:", this.game.gameTurns);
     return newTurns;
   }
 
   /** Internal function for GameManager
    * Initializes a client-side representation of the game board on construction
-   * Returns boardData: [ [ { playerId, validCoordSets } ] ]
+   * Returns ClientBoard
   */
   private _initializeClientBoard() : ClientBoard {
     if (this.game === undefined) {
@@ -145,20 +142,20 @@ export class GameManager {
   }
 
   /** Internal function for GameManager
-   * Updates this.clientBoard with the provided turn object:
-   * { turnId, location, playerId, gameId, createdOnMs } */
-  private _updateBoardWithTurn(turn) {
-    this.clientBoard[turn.location[0]][turn.location[1]].playerId = turn.playerId;
+   * Updates this.clientBoard with the provided GameTurn object:
+   **/
+  private _updateBoardWithTurn(turn : C4Server.GameTurn) : void {
+    this.clientBoard![turn.location[0]][turn.location[1]].playerId = turn.playerId;
   }
 
   /** Internal function for GameManager
    * Checks for and handles games which are won or tied */
-  private _gameEnding() {
+  private _gameEnding() : void {
     if (this.gameState === 2) {
       // game is won
       this.pollForTurns = false;
       this.isPolling = false;
-      _highlightWinningCells(this);
+      __highlightWinningCells(this);
       this.forceReRender(); // call callback to re-render
     } else if (this.gameState === 3) {
       // game is tied
@@ -168,42 +165,54 @@ export class GameManager {
     }
 
     /** Internal function for GameManager._gameEnding()
+     * Passed the instance of GameManager to update.
      * Sets highlight = true for each winning cell in a won game
      */
-    function _highlightWinningCells(parent) {
-      for (let cell of parent.game.gameData.winningSet) {
-        parent.board[cell[0]][cell[1]].highlight = true;
+    function __highlightWinningCells(parent : GameManager) : void {
+      for (let cell of parent.game!.gameData.winningSet) {
+        parent.clientBoard![cell[0]][cell[1]].highlight = true;
       }
     }
   }
 
-  /** Drops a piece at the specified column for the current player associated with
-   * the game associated with this game manager. Returns undefined.
+  /** Drops a piece at the specified column for the current player
+   * associated with the game associated with this game manager.
+   * Returns undefined.
    */
-  async dropPiece(column) {
+  async dropPiece(column: number) : Promise<void> {
     if (this.gameState !== 1) {
       console.log("WARNING: Piece dropped while game is not in STARTED state.");
       return;
     }
-    await C4Server.dropPiece(this.gameId, this.currPlayerId, column);
+    await this.server!.dropPiece(this.gameId!, this.currPlayerId!, column);
     await this._conductPoll();
   }
 
   /** Starts (or re-starts) the game associated with this game manager */
-  async startGame() {
-    await C4Server.startGame(this.gameId);
+  async startGame() : Promise<void> {
+    await this.server!.startGame(this.gameId!);
     await this.initialize();
     this.forceReRender();
   }
 
   /** Deletes the game associated with this game manager */
-  async deleteGame() {
+  async deleteGame() : Promise<void> {
     this.disablePolling();
-    await C4Server.deleteGame(this.gameId);
+    await this.server!.deleteGame(this.gameId!);
+  }
+
+  /**
+   * Accepts a Game ID
+   * Assigns this GameManager to manage the specific game and initializes
+   * the GameManager using that game state.
+   * Returns undefined */
+  async setGameAndInitialize(gameId: string) : Promise<void> {
+    this.gameId = gameId;
+    this.initialize();
   }
 
   /** Enables polling and initiates polling (via this._poll()) */
-  enablePolling() {
+  enablePolling() : void {
     this.pollForTurns = true;
     if (!this.isPolling) {
       this.isPolling = true;
@@ -212,7 +221,7 @@ export class GameManager {
   }
 
   /** Disables polling such that on next poll, polling will cease. */
-  disablePolling() {
+  disablePolling() : void {
     this.isPolling = false;
     this.pollForTurns = false;
   }
@@ -221,7 +230,7 @@ export class GameManager {
    * Polling function which calls this.updateTurns() and then
    * awaits updateTurnsDelayInMs to transpire before calling again.
    */
-  private async _poll() {
+  private async _poll() : Promise<void> {
     while (this.pollForTurns) {
       await this._conductPoll();
       await delay(updateTurnsDelayInMs);
