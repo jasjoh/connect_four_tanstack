@@ -11,7 +11,7 @@ import React from "react";
  *
  * BoardDropRow -> BoardDropCell
  * */
-function BoardDropCell(
+export function BoardDropCell(
   { colIndex, dropPiece } : { colIndex: number, dropPiece: (col: number) => void }
 ) {
   // console.log("BoardDropCell re-rendered");
@@ -30,5 +30,3 @@ function BoardDropCell(
     </td>
   );
 }
-
-export default BoardDropCell;

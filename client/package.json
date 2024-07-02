@@ -20,10 +20,6 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build && cp build/index.html build/200.html && cp build/index.html build/404.html",
-    "test": "react-scripts test --coverage",
-    "eject": "react-scripts eject",
     "dev": "vite",
     "build_v": "vite build",
     "serve": "vite preview"
