@@ -1,5 +1,8 @@
+import React from "react";
+
+import { GamePiece } from "./GamePiece";
+
 import "./BoardPlayCell.css"
-import GamePiece from "./GamePiece";
 
 /** An individual cell in the game board where pieces may exist once dropped
  *
@@ -14,7 +17,9 @@ import GamePiece from "./GamePiece";
  *
  * BoardPlayCell -> GamePiece
  * */
-function BoardPlayCell({ highlight=false, color=undefined}) {
+export function BoardPlayCell(
+  { highlight=false, color=undefined} : {highlight: boolean, color: undefined | string}
+) {
   // console.log("BoardPlayCell re-rendered");
 
   let style = {}
@@ -29,5 +34,3 @@ function BoardPlayCell({ highlight=false, color=undefined}) {
     </td>
   );
 }
-
-export default BoardPlayCell;

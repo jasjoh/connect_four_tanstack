@@ -1,10 +1,13 @@
-import "./GameList.css";
-
-import ConnectFourServerApi from "../server";
+import React from "react";
 import { useState, useEffect } from "react";
-import GameListing from "./GameListing";
-import GameCreateForm from "./GameCreateForm";
-import LoadingSpinner from "./LoadingSpinner";
+
+import * as C4Server from "../server";
+
+import { GameListing } from "./GameListing";
+import { GameCreateForm, GameCreateFormData } from "./GameCreateForm";
+import { LoadingSpinner } from "./LoadingSpinner";
+
+import "./GameList.css";
 
 /** Displays the list of available games and a form to create a new game
  *
@@ -21,18 +24,19 @@ import LoadingSpinner from "./LoadingSpinner";
  *
  * GameList -> LoadingSpinner
  *  */
-function GameList() {
+export function GameList() : JSX.Element {
   // console.log("GameList re-rendered");
 
-  const [gameList, setGameList] = useState(null);
+  const [gameList, setGameList] = useState<C4Server.GameSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   /** Fetches the game list from the server on mount
    * Updates state with the list and sets isLoading to false to trigger re-render */
-  useEffect(function fetchGameListOnMount(){
-    async function fetchGameListings(){
+  useEffect(function fetchGameListOnMount() : void {
+    async function fetchGameListings() : Promise<void> {
       // console.log("fetchGameListOnMount() called thus component is being re-mounted");
-      const gameList = await ConnectFourServerApi.getGames();
+      const server = C4Server.Server.getInstance();
+      const gameList = await server.getGames();
       // console.log("retrieved gameList:", gameList);
       setGameList(gameList);
       setIsLoading(false);
@@ -44,10 +48,11 @@ function GameList() {
    * Leverages ConnectFourServerApi to create the game, fetch the updated
    * list of games and then updates state to trigger a re-render.
    */
-  async function createGame(formData) {
+  async function createGame(formData : GameCreateFormData) : Promise<void> {
     // console.log("GameList createGame() form called with:", formData);
-    await ConnectFourServerApi.createGame(formData);
-    const updatedGameList = await ConnectFourServerApi.getGames();
+      const server = C4Server.Server.getInstance();
+    await server.createGame(formData);
+    const updatedGameList = await server.getGames();
     setGameList(updatedGameList);
   }
 
@@ -83,5 +88,3 @@ function GameList() {
     </div>
   );
 }
-
-export default GameList;

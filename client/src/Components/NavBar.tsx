@@ -1,5 +1,7 @@
-import "./NavBar.css";
+import React from "react";
 import { Link } from "react-router-dom";
+
+import "./NavBar.css";
 
 /** Navigation bar with links to view list of games or players
  *
@@ -11,7 +13,7 @@ import { Link } from "react-router-dom";
  *
  * App -> BrowserRouter -> NavBar
  */
-function NavBar() {
+export function NavBar() : JSX.Element {
   // console.log("NavBar re-rendered");
 
   return (
@@ -25,5 +27,3 @@ function NavBar() {
     </div>
   );
 }
-
-export default NavBar;

@@ -1,6 +1,15 @@
+import React from "react";
+import { Player } from "../server.js";
+
 import "./PlayerList.css";
 
-import PlayerListing from "./PlayerListing.js";
+import { PlayerListing } from "./PlayerListing";
+
+interface PlayerListProps {
+  playerList: Player[];
+  action: ((str: string) => void) | undefined;
+  actionType: string | undefined;
+}
 
 
 /** Displays a list of players with a dynamic action based on the context of
@@ -24,7 +33,7 @@ import PlayerListing from "./PlayerListing.js";
  *
  * PlayerList -> PlayerListing
  * */
-function PlayerList({playerList, action, actionType}) {
+export function PlayerList({playerList, action, actionType} : PlayerListProps) : JSX.Element {
   // console.log("PlayerList re-rendered");
 
   let titleText = '';
@@ -75,5 +84,3 @@ function PlayerList({playerList, action, actionType}) {
     </div>
   );
 }
-
-export default PlayerList;

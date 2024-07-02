@@ -201,7 +201,7 @@ export class Server {
    * Returns the created game (GameData)
    *    placedPieces, winningSet, currPlayerId, createdOn, totalPlayers }
    */
-  async createGame(dimensions : { height: number, width: number }) : Promise<GameData> {
+  async createGame(dimensions : { height: string, width: string }) : Promise<GameData> {
     const data : PostGameResponseData = await this._request(`games`, dimensions, 'POST' );
     // console.log("created game:", data);
     return data.game;

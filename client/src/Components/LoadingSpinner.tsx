@@ -1,7 +1,8 @@
-import "./LoadingSpinner.css"
-
+import React from "react";
 import { useEffect, useState } from "react";
 import { delay } from "../utils";
+
+import "./LoadingSpinner.css"
 
 /** A simple loading spinner to display while awaiting network requests
  *
@@ -19,13 +20,13 @@ import { delay } from "../utils";
  * - AddPlayerToGameModal
  *
  * */
-function LoadingSpinner() {
+export function LoadingSpinner() : JSX.Element {
   // console.log("LoadingSpinner re-rendered");
 
   const [extendedLoading, setExtendedLoading] = useState(false);
 
-  useEffect(function startExtendedLoadingTimerOnMount(){
-    async function startExtendedLoadingTimer(){
+  useEffect(function startExtendedLoadingTimerOnMount() : void {
+    async function startExtendedLoadingTimer() : Promise<void> {
       // console.log("startExtendedLoadingTimerOnMount() called thus component is being re-mounted");
       await delay(5000);
       setExtendedLoading(true);
@@ -43,5 +44,3 @@ function LoadingSpinner() {
     </div>
   );
 }
-
-export default LoadingSpinner;

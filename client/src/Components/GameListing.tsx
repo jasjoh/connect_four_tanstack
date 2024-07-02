@@ -1,33 +1,25 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import { GameSummary } from '../server';
+
 import "./GameListing.css";
 
 /** Displays a specific game listing
  *
  * Props:
- *  - game: A game object like:
- *
- *    id: string;
-      gameState: number;
-      placedPieces: number[][] | null;
-      boardId: string,
-      boardData: BoardDataType;
-      boardWidth: number;
-      boardHeight: number;
-      winningSet: number[][] | null;
-      currPlayerId: string | null;
-      createdOn: Date;
-      totalPlayers: number;
+ *  - game: Summary data about a game to display.
  *
  * State:
  *  - None
  *
  * GameList -> GameListing */
-function GameListing({ game }) {
+export function GameListing({ game } : { game: GameSummary }) : JSX.Element{
   // console.log("GameListing re-rendered");
 
     const navigate = useNavigate();
 
-    function gameClick(evt) {
+    function gameClick() : void {
       // console.log("Game row clicked. Navigating to:", `/games/${game.id}`);
       navigate(`/games/${game.id}`);
     }
@@ -41,5 +33,3 @@ function GameListing({ game }) {
     </tr>
   );
 }
-
-export default GameListing;

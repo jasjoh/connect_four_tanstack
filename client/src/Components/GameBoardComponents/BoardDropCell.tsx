@@ -1,4 +1,4 @@
-// import "./BoardDropCell.css"
+import React from "react";
 
 /** An individual cell which can be clicked to drop a piece into a column
  *
@@ -11,11 +11,13 @@
  *
  * BoardDropRow -> BoardDropCell
  * */
-function BoardDropCell({ colIndex, dropPiece }) {
+function BoardDropCell(
+  { colIndex, dropPiece } : { colIndex: number, dropPiece: (col: number) => void }
+) {
   // console.log("BoardDropCell re-rendered");
 
   /** Handles a click and calls dropPiece with correct column index */
-  function handleClick(evt) {
+  function handleClick(evt : React.MouseEvent) : void {
     // console.log("BoardDropCell clicked, calling dropPiece with:", colIndex);
     dropPiece(colIndex);
   }

@@ -1,4 +1,11 @@
+import React from "react";
 import { useState } from "react";
+
+export interface GameCreateFormData {
+  width: string;
+  height: string;
+}
+
 import "./GameCreateForm.css"
 
 /** A form for creating a new game
@@ -12,38 +19,30 @@ import "./GameCreateForm.css"
  * GameList -> GameCreateForm
  * */
 
-function GameCreateForm({ createGame }) {
+export function GameCreateForm(
+  { createGame } : {createGame : (formData: GameCreateFormData) => void }
+) : JSX.Element {
   // console.log("GameCreateForm re-rendered");
 
-  const [formData, setFormData] = useState({
-    width: 6,
-    height: 6,
-    ai: false
+  const [formData, setFormData] = useState<GameCreateFormData>({
+    width: '6',
+    height: '6'
   });
 
   // updates the form input as the user types
-  function handleChange(evt) {
+  function handleChange(evt : React.ChangeEvent) {
 
-    // look at checked if its our checkbox
-    if (evt.target.name === 'ai') {
-      let { name, checked } = evt.target;
-      setFormData( formData => ({
-        ...formData,
-        [name]: checked
-      }))
+    const htmlTarget = evt.target as HTMLFormElement;
 
-    // otherwise user value
-    } else {
-      let { name, value } = evt.target;
-      setFormData( formData => ({
-        ...formData,
-        [name]: value
-      }))
-    }
+    let { name, value } = htmlTarget;
+    setFormData( formData => ({
+      ...formData,
+      [name]: value
+    }))
   }
 
   // calls the createGame() callback on form submission
-  function handleSubmit(evt) {
+  function handleSubmit(evt : React.FormEvent) {
     // console.log("handleSubmit called");
     evt.preventDefault();
     createGame(formData);
@@ -80,5 +79,3 @@ function GameCreateForm({ createGame }) {
     </div>
   );
 }
-
-export default GameCreateForm;

@@ -1,9 +1,11 @@
+import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Main from "./Main.js";
-import PlayGame from "./PlayGame.js";
-import GameList from "./GameList.js";
-import PlayerListAndCreate from "./PlayerListAndCreate.js";
-import GameDetails from "./GameDetails.js";
+
+import { Main } from "./Main";
+import { PlayGame } from "./PlayGame";
+import { GameList } from "./GameList";
+import { PlayerListAndCreate } from "./PlayerListAndCreate";
+import { GameDetails } from "./GameDetails";
 
 /** Handles all routing of URLs to components (except NavBar)
  *
@@ -19,7 +21,7 @@ import GameDetails from "./GameDetails.js";
  * RoutesList -> Main (GameList / PlayerListAndCreate)
  *
  * */
-function RoutesList() {
+export function RoutesList() : JSX.Element {
   return (
     <Routes>
       <Route path="/games/:gameId/play" element={<PlayGame />} />
@@ -30,5 +32,3 @@ function RoutesList() {
     </Routes>
   );
 }
-
-export default RoutesList;

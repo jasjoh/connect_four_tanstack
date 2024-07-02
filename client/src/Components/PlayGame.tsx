@@ -1,12 +1,13 @@
-import { GameManager } from "../gameManager.js";
-
+import React from "react";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import PlayerList from "./PlayerList.js";
-import GameBoard from "./GameBoardComponents/GameBoard.js";
-import LoadingSpinner from "./LoadingSpinner.js";
-import GameDetailsPropertyList from "./GameDetailsPropertyList.js";
+import { GameManager } from "../gameManager";
+
+import { PlayerList } from "./PlayerList";
+import { GameBoard } from "./GameBoardComponents/GameBoard";
+import { LoadingSpinner } from "./LoadingSpinner";
+import { GameDetailsPropertyList } from "./GameDetailsPropertyList";
 
 /** Main component that handles playing a specific game
  *
@@ -30,13 +31,13 @@ import GameDetailsPropertyList from "./GameDetailsPropertyList.js";
  *
  * PlayGame -> LoadingSpinner
  */
-function PlayGame() {
+export function PlayGame() {
   // console.log("PlayGame re-rendered");
   const { gameId } = useParams();
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [gameManager, setGameManager] = useState(null);
+  const [gameManager, setGameManager] = useState<GameManager|null>(null);
 
   /** Hack to handle the fact game state is mutating server-side and avoid
    * having to generate new GameManagers each time game state is updated */
@@ -47,9 +48,9 @@ function PlayGame() {
   * After construction, initializes the new GameManager and then sets state
   * Once the new GameManager state is set, sets isLoading to false
   */
-  useEffect(function initializeGameManagerEffect() {
-    async function initializeGameManager() {
-      const newGameManager = new GameManager(gameId, forceReRender);
+  useEffect(function initializeGameManagerEffect() : void {
+    async function initializeGameManager() : Promise<void>{
+      const newGameManager = new GameManager(gameId!, forceReRender);
       await newGameManager.initialize();
       setGameManager(newGameManager);
       setIsLoading(false);
@@ -59,49 +60,49 @@ function PlayGame() {
   }, [gameId]);
 
   /** Used by the gameManager as a callback function to force re-render when game state is updated  */
-  function forceReRender() {
+  function forceReRender() : void {
     // console.log("PlayGame.forceReRender() called");
     setRenderToggle(prevValue => { return !prevValue; });
   }
 
   /** Called when a user clicks on the start or re-start button
    * Calls the GameManager's startGame() function  */
-  async function startGame() {
+  async function startGame() : Promise<void> {
     // console.log("startGame() called");
-    await gameManager.startGame();
+    await gameManager!.startGame();
   }
 
   /** Called when a user clicks the button to delete the current game
    * Calls the GameManager's deleteGame() function */
-  async function deleteGame() {
+  async function deleteGame() : Promise<void> {
     // console.log("deleteGame() called");
-    await gameManager.deleteGame();
+    await gameManager!.deleteGame();
     navigate(`/`);
   }
 
   /** Called when a user clicks the button to manage the players in a game
    * Navigates the user to the GameDetails for the game */
-  async function managePlayers() {
+  async function managePlayers() : Promise<void>{
     // console.log("managePlayers() called");
     navigate(`/games/${gameId}`);
   }
 
   /** Called when a user drops a piece in a drop row
    * Calls the GameManager's dropPiece() function */
-  async function dropPiece(colIndex) {
+  async function dropPiece(colIndex: number) : Promise<void> {
     // console.log("dropPiece() called with colIndex:", colIndex);
-    await gameManager.dropPiece(colIndex);
+    await gameManager!.dropPiece(colIndex);
   }
 
   if (isLoading) return (<LoadingSpinner />);
 
   return (
     <div className="PlayGame">
-      <GameDetailsPropertyList gameData={gameManager.game.gameData} />
-      <PlayerList playerList={gameManager.players} />
+      <GameDetailsPropertyList gameData={gameManager!.game!.gameData} />
+      <PlayerList playerList={gameManager!.players!} action={undefined} actionType={undefined} />
       <div className="PlayGame-manageButtons">
         <button className="PlayGame-manageButtons-button" onClick={startGame}>
-          {gameManager.gameState === 0 ? 'Start' : 'Restart'}
+          {gameManager!.gameState === 0 ? 'Start' : 'Restart'}
         </button>
         <button className="PlayGame-manageButtons-button" onClick={deleteGame}>
           Delete
@@ -111,13 +112,11 @@ function PlayGame() {
         </button>
       </div>
       <GameBoard
-        gameState={gameManager.gameState}
-        boardState={gameManager.board}
-        gamePlayers={gameManager.players}
+        gameState={gameManager!.gameState}
+        boardState={gameManager!.clientBoard!}
+        gamePlayers={gameManager!.players!}
         dropPiece={dropPiece}>
       </GameBoard>
     </div>
   );
 }
-
-export default PlayGame;

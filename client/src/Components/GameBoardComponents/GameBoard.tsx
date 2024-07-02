@@ -1,6 +1,18 @@
+import React from "react";
+import { ClientBoard } from "../../gameManager";
+import { Player } from "../../server";
+
+import { BoardPlayRow } from "./BoardPlayRow";
+import { BoardDropRow } from "./BoardDropRow";
+
 import "./GameBoard.css"
-import BoardPlayRow from "./BoardPlayRow";
-import BoardDropRow from "./BoardDropRow";
+
+interface GameBoardProps {
+  gameState: number | undefined;
+  boardState: ClientBoard;
+  gamePlayers: Player[];
+  dropPiece: (col: number) => void;
+}
 
 /** Displays the game board
  *
@@ -18,7 +30,7 @@ import BoardDropRow from "./BoardDropRow";
  * GameBoard -> BoardDropRow
  * GameBoard -> BoardPlayRow
  * */
-function GameBoard({ gameState, boardState, gamePlayers, dropPiece }) {
+export function GameBoard({ gameState, boardState, gamePlayers, dropPiece } : GameBoardProps) {
   // console.log("GameBoard re-rendered");
   // console.log("called w/ boardState:", boardState);
 
@@ -44,5 +56,3 @@ function GameBoard({ gameState, boardState, gamePlayers, dropPiece }) {
     </div>
   );
 }
-
-export default GameBoard;

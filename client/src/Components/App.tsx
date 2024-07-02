@@ -1,8 +1,10 @@
+import React from "react";
 import { BrowserRouter } from "react-router-dom";
+
 import "./App.css";
 
-import RoutesList from "./RoutesList.js";
-import NavBar from "./NavBar.js";
+import { RoutesList } from "./RoutesList";
+import { NavBar } from "./NavBar";
 
 /** Parent level component hosting BrowserRouter and
  * for displaying nav bar alongside all components in the RoutesList
@@ -16,7 +18,8 @@ import NavBar from "./NavBar.js";
  * App -> BrowserRouter -> NavBar
  * App -> BrowserRouter -> RoutesList
  *  */
-function App() {
+export function App() : JSX.Element {
+// const App: React.FC = () => {
   return (
     <BrowserRouter>
       <div className="App">
@@ -26,5 +29,3 @@ function App() {
     </BrowserRouter>
   );
 }
-
-export default App;

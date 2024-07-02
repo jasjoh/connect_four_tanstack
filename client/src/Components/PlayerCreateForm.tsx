@@ -1,5 +1,12 @@
+import React from "react";
 import { useState } from "react";
 import "./PlayerCreateForm.css"
+
+export interface PlayerCreateFormData {
+  ai: boolean;
+  color: string;
+  name: string;
+}
 
 /** A form for creating a new player
  *
@@ -11,7 +18,9 @@ import "./PlayerCreateForm.css"
  *
  * PlayerListAndCreate -> PlayerCreateForm */
 
-function PlayerCreateForm({ createPlayer }) {
+export function PlayerCreateForm(
+  { createPlayer }: { createPlayer: (formData: PlayerCreateFormData) => void }
+) : JSX.Element {
   // console.log("PlayerCreateForm re-rendered");
 
   const [formData, setFormData] = useState({
@@ -21,27 +30,29 @@ function PlayerCreateForm({ createPlayer }) {
   });
 
   // updates the form input as the user types
-  function handleChange(evt) {
+  function handleChange(evt : React.ChangeEvent) {
 
-    // look at checked if its our checkbox
-    if (evt.target.name === 'ai') {
-      let { name, checked } = evt.target;
-      setFormData( formData => ({
-        ...formData,
-        [name]: checked
-      }))
+      const htmlTarget = evt.target as HTMLFormElement;
 
-    // otherwise user value
-    } else {
-      let { name, value } = evt.target;
-      setFormData( formData => ({
-        ...formData,
-        [name]: value
-      }))
-    }
+      // look at checked if its our checkbox
+      if (htmlTarget.name === 'ai') {
+        let { name, checked } = htmlTarget;
+        setFormData( formData => ({
+          ...formData,
+          [name]: checked
+        }))
+
+      // otherwise user value
+      } else {
+        let { name, value } = htmlTarget;
+        setFormData( formData => ({
+          ...formData,
+          [name]: value
+        }))
+      }
   }
 
-  function handleSubmit(evt) {
+  function handleSubmit(evt : React.FormEvent) {
     // console.log("handleSubmit called");
     evt.preventDefault();
     createPlayer(formData);
@@ -81,7 +92,7 @@ function PlayerCreateForm({ createPlayer }) {
             type="checkbox"
             id="playerCreateForm-ai"
             name="ai"
-            value={formData.ai}
+            value={formData.ai.toString()}
             onChange={handleChange}>
           </input>
         </div>
@@ -90,5 +101,3 @@ function PlayerCreateForm({ createPlayer }) {
     </div>
   );
 }
-
-export default PlayerCreateForm;

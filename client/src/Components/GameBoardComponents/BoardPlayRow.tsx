@@ -1,5 +1,9 @@
-// import "./GameDropRow.css"
-import BoardPlayCell from "./BoardPlayCell";
+import React from "react";
+
+import { ClientBoardCell } from "../../gameManager";
+import { Player } from "../../server";
+
+import { BoardPlayCell } from "./BoardPlayCell";
 
 /** Displays a row where game pieces end up after being dropped
  *
@@ -13,7 +17,9 @@ import BoardPlayCell from "./BoardPlayCell";
  * GameBoard -> BoardPlayRow
  * BoardPlayRow -> BoardPlayCell
  * */
-function BoardPlayRow({ rowState, gamePlayers }) {
+export function BoardPlayRow(
+  { rowState, gamePlayers } : { rowState: ClientBoardCell[], gamePlayers: Player[]}
+) : JSX.Element {
   // console.log("BoardPlayRow re-rendered");
   // console.log("rowState passed in is:", rowState);
 
@@ -23,7 +29,7 @@ function BoardPlayRow({ rowState, gamePlayers }) {
     let highlight = false;
     if (rowState[i].playerId) {
       const player = gamePlayers.find(p => p.id === rowState[i].playerId)
-      color = player.color;
+      color = player!.color;
     }
     if (rowState[i].highlight) { highlight = true; }
     cellsJsx.push(
@@ -33,5 +39,3 @@ function BoardPlayRow({ rowState, gamePlayers }) {
 
   return (<tr className="BoardPlayRow">{ cellsJsx.map( cell => cell ) }</tr>);
 }
-
-export default BoardPlayRow;

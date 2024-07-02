@@ -1,10 +1,11 @@
-// import "./PlayerListAndCreate.css";
+import React from "react";
 
-import ConnectFourServerApi from "../server";
+import * as C4Server from "../server";
+
 import { useState, useEffect } from "react";
-import PlayerList from "./PlayerList.js";
-import PlayerCreateForm from "./PlayerCreateForm.js";
-import LoadingSpinner from "./LoadingSpinner.js";
+import { PlayerList } from "./PlayerList";
+import { PlayerCreateForm, PlayerCreateFormData } from "./PlayerCreateForm";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 /** Displays the list of existing players and a form to create a new player
  *
@@ -22,18 +23,19 @@ import LoadingSpinner from "./LoadingSpinner.js";
  *
  * PlayerListAndCreate -> LoadingSpinner
  * */
-function PlayerListAndCreate() {
+export function PlayerListAndCreate() {
   // console.log("PlayerListAndCreate re-rendered");
 
-  const [playerList, setPlayerList] = useState(null);
+  const [playerList, setPlayerList] = useState<C4Server.Player[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   /** Fetches the player list from the server on mount
    * Updates state with the list and sets isLoading to false to trigger re-render */
-  useEffect(function fetchPlayerListOnMount(){
-    async function fetchPlayerListings(){
+  useEffect(function fetchPlayerListOnMount() : void {
+    async function fetchPlayerListings() : Promise<void> {
       // console.log("fetchPlayerListOnMount() called thus component is being re-mounted");
-      const playerList = await ConnectFourServerApi.getPlayers();
+      const server = C4Server.Server.getInstance();
+      const playerList = await server.getPlayers();
       // console.log("retrieved playerList:", playerList);
       setPlayerList(playerList);
       setIsLoading(false);
@@ -45,10 +47,11 @@ function PlayerListAndCreate() {
    * Leverages ConnectFourServerApi to create the player, fetch the updated
    * list of players and then updates state to trigger a re-render.
    */
-  async function createPlayer(formData) {
+  async function createPlayer(formData : PlayerCreateFormData) {
     // console.log("PlayerList createPlayer() form called with:", formData);
-    await ConnectFourServerApi.createPlayer(formData);
-    const updatedPlayerList = await ConnectFourServerApi.getPlayers();
+    const server = C4Server.Server.getInstance();
+    await server.createPlayer(formData);
+    const updatedPlayerList = await server.getPlayers();
     setPlayerList(updatedPlayerList);
   }
 
@@ -56,10 +59,11 @@ function PlayerListAndCreate() {
    * Leverages ConnectFourServerApi to delete the player, fetch the updated
    * list of players and then updates state to trigger a re-render.
    */
-  async function deletePlayer(formData) {
+  async function deletePlayer(formData : string) {
     // console.log("PlayerList deletePlayer() form called with:", formData);
-    await ConnectFourServerApi.deletePlayer(formData);
-    const updatedPlayerList = await ConnectFourServerApi.getPlayers();
+    const server = C4Server.Server.getInstance();
+    await server.deletePlayer(formData);
+    const updatedPlayerList = await server.getPlayers();
     setPlayerList(updatedPlayerList);
   }
 
@@ -72,5 +76,3 @@ function PlayerListAndCreate() {
     </div>
   );
 }
-
-export default PlayerListAndCreate;

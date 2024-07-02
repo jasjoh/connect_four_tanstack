@@ -1,3 +1,5 @@
+import React from "react";
+
 import "./Main.css";
 
 /** Handles rendering of game and player lists
@@ -12,7 +14,7 @@ import "./Main.css";
  * Main -> GameList
  * Main -> PlayerListAndCreate
  * */
-function Main({ subComponent: SubComponent }) {
+export function Main({ subComponent: SubComponent } : { subComponent: React.ComponentType }) {
   // console.log("Main re-rendered");
 
   return (
@@ -21,5 +23,3 @@ function Main({ subComponent: SubComponent }) {
     </div>
   );
 }
-
-export default Main;

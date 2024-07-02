@@ -1,3 +1,5 @@
+import React from "react";
+
 import "./GamePiece.css"
 
 /** An individual game piece dropped by a player
@@ -10,7 +12,7 @@ import "./GamePiece.css"
  *
  * BoardPlayCell -> GamePiece
  * */
-function GamePiece({ color='#ff0000' }) {
+export function GamePiece({ color='#ff0000' }) {
   // console.log("GamePiece re-rendered");
 
   const style = {
@@ -22,5 +24,3 @@ function GamePiece({ color='#ff0000' }) {
     </div>
   );
 }
-
-export default GamePiece;
