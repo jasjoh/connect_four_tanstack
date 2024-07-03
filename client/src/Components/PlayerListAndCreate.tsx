@@ -27,6 +27,7 @@ export function PlayerListAndCreate() {
   // console.log("PlayerListAndCreate re-rendered");
 
   const [playerList, setPlayerList] = useState<C4Server.Player[]>([]);
+  const [server, setServer] = useState<C4Server.ServerInterface>(C4Server.Server.getInstance());
   const [isLoading, setIsLoading] = useState(true);
 
   /** Fetches the player list from the server on mount
@@ -34,7 +35,6 @@ export function PlayerListAndCreate() {
   useEffect(function fetchPlayerListOnMount() : void {
     async function fetchPlayerListings() : Promise<void> {
       // console.log("fetchPlayerListOnMount() called thus component is being re-mounted");
-      const server = C4Server.Server.getInstance();
       const playerList = await server.getPlayers();
       // console.log("retrieved playerList:", playerList);
       setPlayerList(playerList);
@@ -48,8 +48,7 @@ export function PlayerListAndCreate() {
    * list of players and then updates state to trigger a re-render.
    */
   async function createPlayer(formData : PlayerCreateFormData) {
-    // console.log("PlayerList createPlayer() form called with:", formData);
-    const server = C4Server.Server.getInstance();
+    // console.log("PlayerList createPlayer() form called with:", formData);\
     await server.createPlayer(formData);
     const updatedPlayerList = await server.getPlayers();
     setPlayerList(updatedPlayerList);
@@ -60,8 +59,7 @@ export function PlayerListAndCreate() {
    * list of players and then updates state to trigger a re-render.
    */
   async function deletePlayer(formData : string) {
-    // console.log("PlayerList deletePlayer() form called with:", formData);
-    const server = C4Server.Server.getInstance();
+    // console.log("PlayerList deletePlayer() form called with:", formData);\
     await server.deletePlayer(formData);
     const updatedPlayerList = await server.getPlayers();
     setPlayerList(updatedPlayerList);

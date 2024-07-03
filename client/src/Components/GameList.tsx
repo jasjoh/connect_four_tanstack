@@ -28,6 +28,7 @@ export function GameList() : JSX.Element {
   // console.log("GameList re-rendered");
 
   const [gameList, setGameList] = useState<C4Server.GameSummary[]>([]);
+  const [server, setServer] = useState<C4Server.ServerInterface>(C4Server.Server.getInstance());
   const [isLoading, setIsLoading] = useState(true);
 
   /** Fetches the game list from the server on mount
@@ -35,7 +36,6 @@ export function GameList() : JSX.Element {
   useEffect(function fetchGameListOnMount() : void {
     async function fetchGameListings() : Promise<void> {
       // console.log("fetchGameListOnMount() called thus component is being re-mounted");
-      const server = C4Server.Server.getInstance();
       const gameList = await server.getGames();
       // console.log("retrieved gameList:", gameList);
       setGameList(gameList);
@@ -50,7 +50,6 @@ export function GameList() : JSX.Element {
    */
   async function createGame(formData : GameCreateFormData) : Promise<void> {
     // console.log("GameList createGame() form called with:", formData);
-      const server = C4Server.Server.getInstance();
     await server.createGame(formData);
     const updatedGameList = await server.getGames();
     setGameList(updatedGameList);

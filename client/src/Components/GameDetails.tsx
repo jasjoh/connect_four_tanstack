@@ -40,6 +40,7 @@ export function GameDetails() {
 
   const [game, setGame] = useState<C4Server.GameAndTurns|null>(null);
   const [gamePlayers, setGamePlayers] = useState<C4Server.GamePlayer[]|null>(null);
+  const [server, setServer] = useState<C4Server.ServerInterface>(C4Server.Server.getInstance());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -50,7 +51,6 @@ export function GameDetails() {
    * and whenever gameId changes then sets appropriate state */
   useEffect(function fetchGameAndPlayersEffect() : void {
     async function fetchGameAndPlayers() : Promise<void> {
-      const server = C4Server.Server.getInstance();
       const game = await server.getGame(gameId!);
       // console.log("retrieved game:", game);
       setGame(game);
@@ -69,7 +69,6 @@ export function GameDetails() {
    */
   async function removePlayer(playerId: string) : Promise<void> {
     // console.log("removePlayer() called for player ID:", playerId);
-    const server = C4Server.Server.getInstance();
     await server.removePlayerFromGame(gameId!, playerId);
     const updatedGamePlayers = await server.getPlayersForGame(gameId!);
     setGamePlayers(updatedGamePlayers);
@@ -81,7 +80,6 @@ export function GameDetails() {
    */
   async function addPlayerToGame(playerId : string) : Promise<void> {
     // console.log("addPlayerToGame() called for player ID:", playerId);
-    const server = C4Server.Server.getInstance();
     await server.addPlayersToGame(gameId!, [playerId]);
     const updatedGamePlayers = await server.getPlayersForGame(gameId!);
     setGamePlayers(updatedGamePlayers);
@@ -96,7 +94,6 @@ export function GameDetails() {
   /** Deletes a game and then navigates back to root / home */
   async function deleteGame() : Promise<void> {
     // console.log("deleteGame() called");
-    const server = C4Server.Server.getInstance();
     await server.deleteGame(gameId!);
     navigate(`/`);
   }

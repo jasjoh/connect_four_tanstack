@@ -41,6 +41,7 @@ export function AddPlayerToGameModal (
   // console.log("received gamePlayers:", gamePlayers);
 
   const [availPlayersList, setAvailPlayersList] = useState<C4Server.Player[]|null>(null);
+  const [server, setServer] = useState<C4Server.ServerInterface>(C4Server.Server.getInstance());
   const [isLoading, setIsLoading] = useState(true);
 
   /** Performs a diff of game players to all players to determine avail players
@@ -50,7 +51,6 @@ export function AddPlayerToGameModal (
   useEffect(function fetchAndFilterPlayerListOnMount() : void {
     async function fetchAndFilterPlayerListings() : Promise<void>{
       // console.log("fetchPlayerListOnMount() called thus component is being re-mounted");
-      const server = C4Server.Server.getInstance();
       const playerList = await server.getPlayers();
       // console.log("retrieved playerList:", playerList);
       // console.log("performing player filter");
