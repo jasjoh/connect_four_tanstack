@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import BoardDropRow from './BoardDropRow'
-import BoardDropCell from './BoardDropCell'
+import { BoardDropRow } from './BoardDropRow'
+import { BoardDropCell } from './BoardDropCell'
 
 /**
  * Takes in width and dropPiece() as props
@@ -15,8 +15,10 @@ jest.mock('./BoardDropCell');
 function dropPiece() {};
 
 test('BoardDropRow renders without crashing when passed valid props', () => {
+  const tableBody = document.createElement('tbody');
   const { container } = render(
-    <BoardDropRow width={3} dropPiece={dropPiece} />
+    <BoardDropRow width={3} dropPiece={dropPiece} />,
+    { container: document.body.appendChild(tableBody) }
   );
 
   const boardDropRowTr = container.querySelector("tr");
@@ -24,7 +26,11 @@ test('BoardDropRow renders without crashing when passed valid props', () => {
 });
 
 test('BoardDropRow passes correct params to correct # child components', () => {
-  render(<BoardDropRow width={3} dropPiece={dropPiece} />);
+  const tableBody = document.createElement('tbody');
+  render(
+    <BoardDropRow width={3} dropPiece={dropPiece} />,
+    { container: document.body.appendChild(tableBody) }
+  );
 
   expect(BoardDropCell).toHaveBeenCalledTimes(3);
 

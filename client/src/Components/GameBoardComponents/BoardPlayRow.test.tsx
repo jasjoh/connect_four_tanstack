@@ -1,15 +1,17 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import BoardPlayRow from './BoardPlayRow'
-import BoardPlayCell from './BoardPlayCell';
+import { BoardPlayRow } from './BoardPlayRow'
+import { BoardPlayCell } from './BoardPlayCell';
+import { ClientBoardCell } from '../../gameManager';
+import { Player } from '../../server';
 
 /**
- * Takes in rowState as prop [ { player, highlight } ]
- * Generates array of BoardPlayCells using rowState data
- * Renders one or more BoardPlayCells with key, highlight and color
+ * Accepts a number of cols, players and highlights
+ * Creates a row of the specific number of columns (default to 1)
+ * Assigns players
+ *
  */
-
-function createRowState(rows=1, players=0, highlights=0) {
+function createRowState(cols=1, players=0, highlights=0) : ClientBoardCell[] {
   let curRow = 0;
   let rowState = [];
   let playersAdded = 0;
@@ -36,10 +38,13 @@ jest.mock('./BoardPlayCell');
 
 test('BoardPlayRow renders without crashing when passed valid props', () => {
 
-  let rowState = createRowState()
+  let rowState = createRowState();
+  let gamePlayers = createGamePlayers();
 
+  const tableBody = document.createElement('tbody');
   const { container } = render(
-    <BoardPlayRow rowState={rowState} />
+    <BoardPlayRow rowState={rowState} gamePlayers={gamePlayers} />,
+    { container: document.body.appendChild(tableBody) }
   );
 
   const boardDropRowTr = container.querySelector("tr");
@@ -50,7 +55,11 @@ test('BoardPlayRow passes correct params to correct # child components', () => {
 
   let rowState = createRowState(3)
 
-  render(<BoardPlayRow rowState={rowState} />);
+  const tableBody = document.createElement('tbody');
+  render(
+    <BoardPlayRow rowState={rowState} />,
+    { container: document.body.appendChild(tableBody) }
+  );
 
   expect(BoardPlayCell).toHaveBeenCalledTimes(3);
 
@@ -64,7 +73,11 @@ test('BoardPlayRow passes correct highlight and color values to child component'
 
   let rowState = createRowState(1, 1, 1)
 
-  render(<BoardPlayRow rowState={rowState} />);
+  const tableBody = document.createElement('tbody');
+  render(
+    <BoardPlayRow rowState={rowState} />,
+    { container: document.body.appendChild(tableBody) }
+  );
 
   expect(BoardPlayCell).toHaveBeenCalledWith({
     color: '#f3f3f3',

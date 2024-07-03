@@ -159,7 +159,7 @@ export class Server {
   }
 
   /** Get a specific game */
-  async getGame(gameId: string) : Promise<{ gameTurns: GameTurn[], gameData: GameData }> {
+  async getGame(gameId: string) : Promise<GameAndTurns> {
     const data : GetGameResponseData = await this._request(`games/${gameId}`, );
     // console.log("retrieved game:", data);
     return data.game;

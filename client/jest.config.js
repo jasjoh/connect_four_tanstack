@@ -4,14 +4,11 @@ export default {
   setupFilesAfterEnv: ['./src/setupTests.tsx'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.tsx?$': ['ts-jest', {
+      useESM: true,
+    }],
   },
   moduleNameMapper: {
     '\\.(css|less)$': 'identity-obj-proxy',
-  },
-  globals: {
-    'ts-jest': {
-      useESM: true,
-    },
   },
 };

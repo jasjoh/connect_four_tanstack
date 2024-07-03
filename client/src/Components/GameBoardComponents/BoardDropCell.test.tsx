@@ -1,15 +1,17 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
-import BoardDropCell from './BoardDropCell'
+import { BoardDropCell } from './BoardDropCell'
 
 /**
  * Called w/ colIndex and dropPiece() callback
  * Renders a single TD w/ a click handler called handleClick which calls dropPiece
  */
 
-test('renders BoardDropCell component without crashing (no props)', () => {
+test('renders BoardDropCell component without crashing', () => {
+  const tableRow = document.createElement('tr');
   const { container } = render(
-    <BoardDropCell />
+    <BoardDropCell colIndex={1} dropPiece={() => {}} />,
+    { container: document.body.appendChild(tableRow) }
   );
 
   const boardPlayCellTd = container.querySelector("td");
@@ -17,16 +19,18 @@ test('renders BoardDropCell component without crashing (no props)', () => {
 });
 
 test('calls dropPiece() with passed in colIndex on click', () => {
+  const tableRow = document.createElement('tr');
   let returnedColIndex;
-  function dropPiece(colIndex) {
+  function dropPiece(colIndex: number) {
     returnedColIndex = colIndex;
   }
 
   const { container } = render(
-    <BoardDropCell colIndex={3} dropPiece={(dropPiece)}/>
+    <BoardDropCell colIndex={3} dropPiece={(dropPiece)}/>,
+    { container: document.body.appendChild(tableRow) }
   );
 
   const boardPlayCellTd = container.querySelector("td");
-  fireEvent.click(boardPlayCellTd);
+  fireEvent.click(boardPlayCellTd!);
   expect(returnedColIndex).toBe(3);
 });
