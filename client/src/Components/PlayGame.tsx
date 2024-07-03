@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import { GameManager } from "../gameManager";
+import { GameManager, GameManagerInterface } from "../gameManager";
 
 import { PlayerList } from "./PlayerList";
 import { GameBoard } from "./GameBoardComponents/GameBoard";
@@ -37,7 +37,7 @@ export function PlayGame() {
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [gameManager, setGameManager] = useState<GameManager|null>(null);
+  const [gameManager, setGameManager] = useState<GameManagerInterface|null>(null);
 
   /** Hack to handle the fact game state is mutating server-side and avoid
    * having to generate new GameManagers each time game state is updated */
@@ -50,7 +50,7 @@ export function PlayGame() {
   */
   useEffect(function initializeGameManagerEffect() : void {
     async function initializeGameManager() : Promise<void>{
-      const newGameManager = new GameManager(gameId!, forceReRender);
+      const newGameManager: GameManagerInterface = new GameManager(gameId!, forceReRender);
       await newGameManager.initialize();
       setGameManager(newGameManager);
       setIsLoading(false);
@@ -98,11 +98,11 @@ export function PlayGame() {
 
   return (
     <div className="PlayGame">
-      <GameDetailsPropertyList gameData={gameManager!.game!.gameData} />
-      <PlayerList playerList={gameManager!.players!} action={undefined} actionType={undefined} />
+      <GameDetailsPropertyList gameData={gameManager!.getGameAndTurns().gameData} />
+      <PlayerList playerList={gameManager!.getPlayers()} action={undefined} actionType={undefined} />
       <div className="PlayGame-manageButtons">
         <button className="PlayGame-manageButtons-button" onClick={startGame}>
-          {gameManager!.gameState === 0 ? 'Start' : 'Restart'}
+          {gameManager!.getGameState() === 0 ? 'Start' : 'Restart'}
         </button>
         <button className="PlayGame-manageButtons-button" onClick={deleteGame}>
           Delete
@@ -112,9 +112,9 @@ export function PlayGame() {
         </button>
       </div>
       <GameBoard
-        gameState={gameManager!.gameState}
-        boardState={gameManager!.clientBoard!}
-        gamePlayers={gameManager!.players!}
+        gameState={gameManager!.getGameState()}
+        boardState={gameManager!.getClientBoard()}
+        gamePlayers={gameManager!.getPlayers()}
         dropPiece={dropPiece}>
       </GameBoard>
     </div>
