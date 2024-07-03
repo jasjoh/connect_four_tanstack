@@ -100,14 +100,30 @@ export interface GetGamesResponseData {
   games: GameSummary[];
 }
 
+export interface ServerInterface {
+  getGames(): Promise<GameSummary[]>;
+  getGame(gameId: string): Promise<GameAndTurns>;
+  getPlayers(): Promise<Player[]>;
+  getPlayer(pId: string): Promise<Player>;
+  getPlayersForGame(gameId: string): Promise<GamePlayer[]>;
+  createPlayer(player: NewPlayer): Promise<Player>;
+  createGame(dimensions: { height: string, width: string; }): Promise<GameData>;
+  startGame(gameId: string): Promise<void>;
+  dropPiece(gameId: string, playerId: string, col: number): Promise<void>;
+  addPlayersToGame(gameId: string, players: string[]): Promise<AddPlayerToGameResponseData>;
+  deletePlayer(playerId: string): Promise<void>;
+  removePlayerFromGame(gameId: string, playerId: string): Promise<void>;
+  deleteGame(gameId: string): Promise<void>;
+}
+
 /** Singleton class representing a controller for interacting with the server */
-export class Server {
+export class Server implements ServerInterface {
 
   private static instance: Server;
 
-  private constructor() {}
+  private constructor() { }
 
-  static getInstance() : Server {
+  static getInstance(): Server {
     if (!this.instance) {
       this.instance = new Server();
     }
@@ -123,7 +139,7 @@ export class Server {
    * @param {object} data - the data (payload) to submit; can be url params or a json body payload
    * @param {string} method - the method associated with the request
    */
-  private async _request(endpoint: string, data = {}, method = "get") : Promise<any> {
+  private async _request(endpoint: string, data = {}, method = "get"): Promise<any> {
     // console.debug("API Call:", endpoint, data, method);
 
     const url = `${BASE_URL as string}/${endpoint}`;
@@ -152,36 +168,36 @@ export class Server {
   // Individual API routes
 
   /** Get a list of all games */
-  async getGames() : Promise<GameSummary[]> {
-    const data : GetGamesResponseData = await this._request(`games`);
+  async getGames(): Promise<GameSummary[]> {
+    const data: GetGamesResponseData = await this._request(`games`);
     // console.log("retrieved games:", data);
     return data.games;
   }
 
   /** Get a specific game */
-  async getGame(gameId: string) : Promise<GameAndTurns> {
-    const data : GetGameResponseData = await this._request(`games/${gameId}`, );
+  async getGame(gameId: string): Promise<GameAndTurns> {
+    const data: GetGameResponseData = await this._request(`games/${gameId}`,);
     // console.log("retrieved game:", data);
     return data.game;
   }
 
   /** Get all players */
-  async getPlayers() : Promise<Player[]>{
-    const data : GetPlayersResponseData = await this._request(`players`, );
+  async getPlayers(): Promise<Player[]> {
+    const data: GetPlayersResponseData = await this._request(`players`,);
     // console.log("retrieved players:", data.players);
     return data.players;
   }
 
   /** Get a specific player */
-  async getPlayer(pId: string) : Promise<Player> {
-    const data : GetPostPlayerResponseData = await this._request(`players/${pId}`, );
+  async getPlayer(pId: string): Promise<Player> {
+    const data: GetPostPlayerResponseData = await this._request(`players/${pId}`,);
     // console.log("retrieved player:", data);
     return data.player;
   }
 
   /** Get all players for a specific game */
-  async getPlayersForGame(gameId: string) : Promise<GamePlayer[]> {
-    const data : GetGamePlayersResponseData = await this._request(`games/${gameId}/players`, );
+  async getPlayersForGame(gameId: string): Promise<GamePlayer[]> {
+    const data: GetGamePlayersResponseData = await this._request(`games/${gameId}/players`,);
     // console.log("retrieved players:", data);
     return data.players;
   }
@@ -190,8 +206,8 @@ export class Server {
    * Experts a NewPlayer object to create
    * Returns the created Player object
    */
-  async createPlayer(player : NewPlayer) : Promise<Player> {
-    const data : GetPostPlayerResponseData = await this._request(`players`, player, 'POST' );
+  async createPlayer(player: NewPlayer): Promise<Player> {
+    const data: GetPostPlayerResponseData = await this._request(`players`, player, 'POST');
     // console.log("created player:", data);
     return data.player;
   }
@@ -201,22 +217,22 @@ export class Server {
    * Returns the created game (GameData)
    *    placedPieces, winningSet, currPlayerId, createdOn, totalPlayers }
    */
-  async createGame(dimensions : { height: string, width: string }) : Promise<GameData> {
-    const data : PostGameResponseData = await this._request(`games`, dimensions, 'POST' );
+  async createGame(dimensions: { height: string, width: string; }): Promise<GameData> {
+    const data: PostGameResponseData = await this._request(`games`, dimensions, 'POST');
     // console.log("created game:", data);
     return data.game;
   }
 
   /** Start (or restart) an existing game
    * Returns undefined if successful and throws error otherwise */
-  async startGame(gameId : string) : Promise<void> {
-    await this._request(`games/${gameId}/start`, {}, 'POST' );
+  async startGame(gameId: string): Promise<void> {
+    await this._request(`games/${gameId}/start`, {}, 'POST');
   }
 
   /** Attempts to drop a piece
    * Expects a game ID, player ID and the column of where to drop the piece.
    * Returns undefined if successful and throws error otherwise */
-  async dropPiece(gameId: string, playerId: string, col: number) : Promise<void> {
+  async dropPiece(gameId: string, playerId: string, col: number): Promise<void> {
     await this._request(
       `games/${gameId}/cols/${col}`, { playerId: playerId }, 'POST'
     );
@@ -226,30 +242,30 @@ export class Server {
    * Expects a game ID an an array of player IDs to add to a game
    * Returns the updated player count (AddPlayerToGameResponseData)
    */
-  async addPlayersToGame(gameId: string, players: string[]) : Promise <AddPlayerToGameResponseData> {
-    const data : AddPlayerToGameResponseData = await this._request(`games/${gameId}/players`, players, 'POST' );
+  async addPlayersToGame(gameId: string, players: string[]): Promise<AddPlayerToGameResponseData> {
+    const data: AddPlayerToGameResponseData = await this._request(`games/${gameId}/players`, players, 'POST');
     // console.log("updated player count:", data);
     return data;
   }
 
   /** Deletes a player (from the database completely)
    * Returns undefined if successful and throws error otherwise */
-  async deletePlayer(playerId : string) : Promise<void> {
-    await this._request(`players/${playerId}`, {}, 'DELETE' );
+  async deletePlayer(playerId: string): Promise<void> {
+    await this._request(`players/${playerId}`, {}, 'DELETE');
   }
 
   /** Removes a player from the specified game
    * Returns undefined if successful and throws error otherwise */
-  async removePlayerFromGame(gameId: string, playerId: string) : Promise<void> {
-    await this._request(`games/${gameId}/players/${playerId}`, {}, 'DELETE' );
+  async removePlayerFromGame(gameId: string, playerId: string): Promise<void> {
+    await this._request(`games/${gameId}/players/${playerId}`, {}, 'DELETE');
     // console.log("removed player response:", data);
     return undefined;
   }
 
   /** Deletes a game
    * Returns undefined if successful and throws error otherwise */
-  async deleteGame(gameId: string) : Promise<void> {
-    await this._request(`games/${gameId}`, {}, 'DELETE' );
+  async deleteGame(gameId: string): Promise<void> {
+    await this._request(`games/${gameId}`, {}, 'DELETE');
     // console.log("deleted game response:", data);
     return undefined;
   }
