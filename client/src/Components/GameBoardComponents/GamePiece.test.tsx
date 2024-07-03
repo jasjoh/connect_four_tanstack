@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import GamePiece from './GamePiece'
+import { GamePiece } from './GamePiece'
 
 test('renders GamePiece component with default color', () => {
   const { container } = render(

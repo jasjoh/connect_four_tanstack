@@ -1,6 +1,6 @@
 import React from "react";
 
-import "./GamePiece.css"
+import "./GamePiece.css";
 
 /** An individual game piece dropped by a player
  *
