@@ -37,7 +37,7 @@ export interface GameData {
 
 export interface BoardCell {
   playerId: string | null;
-  validCoordSets: number[][];
+  validCoordSets: number[][][];
 }
 
 export interface GameTurn {
