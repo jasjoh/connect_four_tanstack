@@ -1,9 +1,12 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+
+import * as Mocks from '../../mocks';
+
 import { BoardPlayRow } from './BoardPlayRow'
 import { BoardPlayCell } from './BoardPlayCell';
 import { ClientBoardCell } from '../../gameManager';
-import { Player } from '../../server';
+import { GamePlayer } from '../../server';
 
 /**
  * Accepts a number of cols, players and highlights
@@ -11,39 +14,18 @@ import { Player } from '../../server';
  * Assigns players
  *
  */
-function createRowState(cols=1, players=0, highlights=0) : ClientBoardCell[] {
-  let curRow = 0;
-  let rowState = [];
-  let playersAdded = 0;
-  let highlightsAdded = 0;
-  while (curRow < rows) {
-    let row = {}
-    if (playersAdded < players) {
-      row.player = { color:  '#f3f3f3' }
-      playersAdded++;
-    } else {
-      row.player = null;
-    }
-    if (highlightsAdded < highlights) {
-      row.highlight = true;
-      highlightsAdded++;
-    }
-    rowState.push(row);
-    curRow++;
-  }
-  return rowState;
-}
 
 jest.mock('./BoardPlayCell');
 
-test('BoardPlayRow renders without crashing when passed valid props', () => {
+const rowStateEmpty : ClientBoardCell[] = Mocks.mockClientBoard[0] ;
+const rowStateWithPieces : ClientBoardCell[] = Mocks.mockClientBoard[1] ;
+const gamePlayers : GamePlayer[] = Mocks.mockGamePlayers;
 
-  let rowState = createRowState();
-  let gamePlayers = createGamePlayers();
+test('BoardPlayRow renders without crashing when passed valid props', () => {
 
   const tableBody = document.createElement('tbody');
   const { container } = render(
-    <BoardPlayRow rowState={rowState} gamePlayers={gamePlayers} />,
+    <BoardPlayRow rowState={rowStateEmpty} gamePlayers={gamePlayers} />,
     { container: document.body.appendChild(tableBody) }
   );
 
@@ -53,15 +35,13 @@ test('BoardPlayRow renders without crashing when passed valid props', () => {
 
 test('BoardPlayRow passes correct params to correct # child components', () => {
 
-  let rowState = createRowState(3)
-
   const tableBody = document.createElement('tbody');
   render(
-    <BoardPlayRow rowState={rowState} />,
+    <BoardPlayRow rowState={rowStateEmpty} gamePlayers={gamePlayers} />,
     { container: document.body.appendChild(tableBody) }
   );
 
-  expect(BoardPlayCell).toHaveBeenCalledTimes(3);
+  expect(BoardPlayCell).toHaveBeenCalledTimes(7);
 
   expect(BoardPlayCell).toHaveBeenCalledWith({
     color: undefined,
@@ -71,16 +51,14 @@ test('BoardPlayRow passes correct params to correct # child components', () => {
 
 test('BoardPlayRow passes correct highlight and color values to child component', () => {
 
-  let rowState = createRowState(1, 1, 1)
-
   const tableBody = document.createElement('tbody');
   render(
-    <BoardPlayRow rowState={rowState} />,
+    <BoardPlayRow rowState={rowStateWithPieces} gamePlayers={gamePlayers} />,
     { container: document.body.appendChild(tableBody) }
   );
 
   expect(BoardPlayCell).toHaveBeenCalledWith({
-    color: '#f3f3f3',
+    color: '#c3c5c1',
     highlight: true
   }, expect.anything()) // expect.anything() accounts for {} passed in all React calls
 });

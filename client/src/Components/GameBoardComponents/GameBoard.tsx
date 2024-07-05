@@ -34,10 +34,6 @@ export function GameBoard({ gameState, boardState, gamePlayers, dropPiece } : Ga
   // console.log("GameBoard re-rendered");
   // console.log("called w/ boardState:", boardState);
 
-  if (gameState !== 1) {
-    dropPiece = () => console.log("dropPiece called while game not started");
-  }
-
   // Build array of BoardPlayRows
   let boardPlayRowsJsx = boardState.map( (row, index) => {
     // console.log("new play row being added for row, index:", row, index);

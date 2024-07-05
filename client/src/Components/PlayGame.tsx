@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import { GameManager, GameManagerInterface } from "../gameManager";
@@ -89,10 +89,18 @@ export function PlayGame() {
 
   /** Called when a user drops a piece in a drop row
    * Calls the GameManager's dropPiece() function */
-  async function dropPiece(colIndex: number) : Promise<void> {
-    // console.log("dropPiece() called with colIndex:", colIndex);
-    await gameManager!.dropPiece(colIndex);
-  }
+  // async function dropPiece(colIndex: number) : Promise<void> {
+  //   // console.log("dropPiece() called with colIndex:", colIndex);
+  //   await gameManager!.dropPiece(colIndex);
+  // }
+
+  const dropPiece = useCallback(async (colIndex: number) => {
+    if (gameManager!.getGameState() === 1) {
+      await gameManager!.dropPiece(colIndex);
+    } else {
+      console.log("dropPiece called while game in started state");
+    }
+  },[gameManager])
 
   if (isLoading) return (<LoadingSpinner />);
 

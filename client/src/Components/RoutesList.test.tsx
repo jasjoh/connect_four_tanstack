@@ -1,8 +1,8 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import Main from './Main';
-import RoutesList from './RoutesList';
+import { Main } from './Main';
+import { RoutesList } from './RoutesList';
 
 jest.mock('./Main');
 

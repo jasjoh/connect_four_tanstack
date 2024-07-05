@@ -1,9 +1,12 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
+
+import * as Mocks from '../../mocks';
+
 import { GameBoard } from './GameBoard'
 import { BoardPlayRow } from './BoardPlayRow';
 import { BoardDropRow } from './BoardDropRow';
-import { createBoardState, setCellState } from '../../testHelpers';
+import { ClientBoard } from '../../gameManager';
 
 /**
  * Props:
@@ -27,13 +30,20 @@ import { createBoardState, setCellState } from '../../testHelpers';
 jest.mock('./BoardDropRow');
 jest.mock('./BoardPlayRow');
 
-function dropPiece() {};
+const boardState : ClientBoard = Mocks.mockClientBoard;
+const dropPiece = () => undefined;
+const gameState = 2;
+const gamePlayers = Mocks.mockGamePlayers;
 
 test('GameBoard renders without crashing when passed valid props', () => {
-  let boardState = createBoardState();
 
   const { container } = render(
-    <GameBoard boardState={boardState} dropPiece={dropPiece} />
+    <GameBoard
+      boardState={boardState}
+      dropPiece={dropPiece}
+      gameState={gameState}
+      gamePlayers={gamePlayers}
+    />
   );
 
   const gameBoard = container.querySelector("div");
@@ -41,15 +51,21 @@ test('GameBoard renders without crashing when passed valid props', () => {
 });
 
 test('GameBoard passes correct params to correct # child components', () => {
-  let boardState = createBoardState();
 
-  render(<GameBoard boardState={boardState} dropPiece={dropPiece} />);
+  render(
+    <GameBoard
+      boardState={boardState}
+      dropPiece={dropPiece}
+      gameState={gameState}
+      gamePlayers={gamePlayers}
+    />
+  );
 
   expect(BoardDropRow).toHaveBeenCalled();
-  expect(BoardPlayRow).toHaveBeenCalledTimes(3);
+  expect(BoardPlayRow).toHaveBeenCalledTimes(6);
 
   expect(BoardDropRow).toHaveBeenCalledWith({
-    width: 3,
+    width: 7,
     dropPiece: dropPiece
   }, expect.anything()) // expect.anything() accounts for {} passed in all React calls
 

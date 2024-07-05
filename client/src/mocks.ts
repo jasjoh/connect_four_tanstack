@@ -1,8 +1,7 @@
-import { mock } from "node:test";
 import { ClientBoard, GameManagerInterface } from "./gameManager";
 import * as C4Server from "./server";
 
-const mockPlayers = [
+export const mockPlayers : C4Server.Player[] = [
   {
     "id": "5136b4f8-4827-4b41-88ed-8d956e31d9f3",
     "name": "New Player 1",
@@ -17,9 +16,9 @@ const mockPlayers = [
     "ai": true,
     "createdOn": "2024-03-29T23:09:20.020Z"
   }
-]
+];
 
-const mockGamesList = [
+export const mockGamesList : C4Server.GameSummary[] = [
   {
     "id": "daae64ed-02c3-4168-9c01-a1337afb0a8c",
     "gameState": 0,
@@ -44,9 +43,9 @@ const mockGamesList = [
     "createdOn": "2024-05-17T05:23:18.797Z",
     "totalPlayers": 2
   }
-]
+];
 
-const mockGame = {
+export const mockGame : C4Server.GameAndTurns = {
   "gameData": {
     "id": "daae64ed-02c3-4168-9c01-a1337afb0a8c",
     "boardId": 1,
@@ -2983,9 +2982,9 @@ const mockGame = {
       "createdOnMs": "1715923195927"
     }
   ]
-}
+};
 
-const mockGamePlayers = [
+export const mockGamePlayers : C4Server.GamePlayer[] = [
   {
     "id": "32032349-59f7-42cf-9188-b03fab2386ec",
     "name": "New Player 3",
@@ -3002,7 +3001,190 @@ const mockGamePlayers = [
     "createdOn": "2024-03-29T23:55:18.348Z",
     "playOrder": 0
   }
-]
+];
+
+export const mockClientBoard : ClientBoard = [
+  [
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    }
+  ],
+  [
+    {
+      "playerId": "32032349-59f7-42cf-9188-b03fab2386ec",
+      "highlight": true
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    }
+  ],
+  [
+    {
+      "playerId": "32032349-59f7-42cf-9188-b03fab2386ec",
+      "highlight": true
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    }
+  ],
+  [
+    {
+      "playerId": "32032349-59f7-42cf-9188-b03fab2386ec",
+      "highlight": true
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": "1f3b1863-d1d0-4525-8cd7-b92ed2e6fa22",
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    }
+  ],
+  [
+    {
+      "playerId": "32032349-59f7-42cf-9188-b03fab2386ec",
+      "highlight": true
+    },
+    {
+      "playerId": "32032349-59f7-42cf-9188-b03fab2386ec",
+      "highlight": false
+    },
+    {
+      "playerId": "1f3b1863-d1d0-4525-8cd7-b92ed2e6fa22",
+      "highlight": false
+    },
+    {
+      "playerId": "1f3b1863-d1d0-4525-8cd7-b92ed2e6fa22",
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    },
+    {
+      "playerId": null,
+      "highlight": false
+    }
+  ],
+  [
+    {
+      "playerId": "1f3b1863-d1d0-4525-8cd7-b92ed2e6fa22",
+      "highlight": false
+    },
+    {
+      "playerId": "32032349-59f7-42cf-9188-b03fab2386ec",
+      "highlight": false
+    },
+    {
+      "playerId": "1f3b1863-d1d0-4525-8cd7-b92ed2e6fa22",
+      "highlight": false
+    },
+    {
+      "playerId": "1f3b1863-d1d0-4525-8cd7-b92ed2e6fa22",
+      "highlight": false
+    },
+    {
+      "playerId": "1f3b1863-d1d0-4525-8cd7-b92ed2e6fa22",
+      "highlight": false
+    },
+    {
+      "playerId": "32032349-59f7-42cf-9188-b03fab2386ec",
+      "highlight": false
+    },
+    {
+      "playerId": "32032349-59f7-42cf-9188-b03fab2386ec",
+      "highlight": false
+    }
+  ]
+];
 
 export class MockServer implements C4Server.ServerInterface {
   async getGames(): Promise<C4Server.GameSummary[]> {
@@ -3033,7 +3215,7 @@ export class MockServer implements C4Server.ServerInterface {
     return undefined;
   }
   async addPlayersToGame(gameId: string, players: string[]): Promise<C4Server.AddPlayerToGameResponseData> {
-    return { playerCount: 2 }
+    return { playerCount: 2 };
   }
   async deletePlayer(playerId: string): Promise<void> {
     return undefined;
@@ -3079,7 +3261,7 @@ export class MockGameManager implements GameManagerInterface {
     return mockPlayers;
   }
   getClientBoard(): ClientBoard {
-    throw new Error("Method not implemented.");
+    return mockClientBoard;
   }
 
 }
