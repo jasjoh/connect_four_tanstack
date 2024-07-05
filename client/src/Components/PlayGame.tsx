@@ -120,7 +120,6 @@ export function PlayGame() {
         </button>
       </div>
       <GameBoard
-        gameState={gameManager!.getGameState()}
         boardState={gameManager!.getClientBoard()}
         gamePlayers={gameManager!.getPlayers()}
         dropPiece={dropPiece}>

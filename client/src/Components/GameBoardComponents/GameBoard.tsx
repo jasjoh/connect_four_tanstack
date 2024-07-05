@@ -8,7 +8,6 @@ import { BoardDropRow } from "./BoardDropRow";
 import "./GameBoard.css"
 
 interface GameBoardProps {
-  gameState: number | undefined;
   boardState: ClientBoard;
   gamePlayers: Player[];
   dropPiece: (col: number) => void;
@@ -30,7 +29,7 @@ interface GameBoardProps {
  * GameBoard -> BoardDropRow
  * GameBoard -> BoardPlayRow
  * */
-export function GameBoard({ gameState, boardState, gamePlayers, dropPiece } : GameBoardProps) {
+export function GameBoard({ boardState, gamePlayers, dropPiece } : GameBoardProps) {
   // console.log("GameBoard re-rendered");
   // console.log("called w/ boardState:", boardState);
 
