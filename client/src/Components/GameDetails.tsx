@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 
 import * as C4Server from "../server";
 
-import { PlayerList } from "./PlayerList.js";
+import { PlayerList } from "./PlayerList";
 import { AddPlayerToGameModal } from "./AddPlayerToGameModal";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { GameDetailsPropertyList } from "./GameDetailsPropertyList";

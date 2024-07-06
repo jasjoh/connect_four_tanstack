@@ -9,12 +9,13 @@
 - Node.js / Express.js Back-End
 - TypeScript (server)
 - PostgreSQL Database
+- Jest
 
 ##### Notable Engineering
-- 80%+ unit server test coverage (via Jest)
+- ~80% unit server test coverage
 - Factory Functions to support testing
 
-### Local Setup / How To Run / How to Test
+### Local Setup
 - use `npm install` in /client to install client dependencies
 - use `npm install` in /server to install server dependencies
 - install postgresql (V14.8 or later) and start it
@@ -24,7 +25,10 @@
 - run the server in dev mode, use `/server/npm run dev`
 - run the server in retail, use `/server/npm run live`
 - server runs at `http://localhost:3001/`
-- to test server, use `/server/jestrun`
+
+## Tests
+- to run client tests, use `/client/jest`
+- to run server tests, use `/server/jest`
 
 ## Client Execution
 - run the server in dev mode, use `/client/npm run start`

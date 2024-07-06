@@ -82,7 +82,7 @@ export function AddPlayerToGameModal (
     <div className="AddPlayerToGameModal">
       <div className="AddPlayerToGameModal-overlay">
         <div className="AddPlayerToGameModal-content">
-          <PlayerList action={addPlayerToGame} actionType={'addPlayerToGame'} playerList={availPlayersList} />
+          <PlayerList action={addPlayerToGame} actionType={'addPlayerToGame'} playerList={availPlayersList!} />
           <button className="AddPlayerToGameModal-finishButton" onClick={closeModal}>Finished Adding Players</button>
         </div>
       </div>

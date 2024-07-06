@@ -15,6 +15,9 @@ jest.mock('./BoardDropCell');
 function dropPiece() {};
 
 test('BoardDropRow renders without crashing when passed valid props', () => {
+
+  jest.clearAllMocks();
+
   const tableBody = document.createElement('tbody');
   const { container } = render(
     <BoardDropRow width={3} dropPiece={dropPiece} />,
@@ -26,6 +29,9 @@ test('BoardDropRow renders without crashing when passed valid props', () => {
 });
 
 test('BoardDropRow passes correct params to correct # child components', () => {
+
+  jest.clearAllMocks();
+
   const tableBody = document.createElement('tbody');
   render(
     <BoardDropRow width={3} dropPiece={dropPiece} />,

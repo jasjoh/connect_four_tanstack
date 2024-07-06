@@ -1,7 +1,7 @@
 import React from "react";
 
-import { gameStates } from "../utils.js";
-import { GameData } from "../server.js";
+import { gameStates } from "../utils";
+import { GameData } from "../server";
 
 /** Displays a list of the properties of a game
  *

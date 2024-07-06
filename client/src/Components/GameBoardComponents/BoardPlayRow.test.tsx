@@ -35,6 +35,8 @@ test('BoardPlayRow renders without crashing when passed valid props', () => {
 
 test('BoardPlayRow passes correct params to correct # child components', () => {
 
+  jest.clearAllMocks();
+
   const tableBody = document.createElement('tbody');
   render(
     <BoardPlayRow rowState={rowStateEmpty} gamePlayers={gamePlayers} />,
@@ -50,6 +52,8 @@ test('BoardPlayRow passes correct params to correct # child components', () => {
 });
 
 test('BoardPlayRow passes correct highlight and color values to child component', () => {
+
+  jest.clearAllMocks();
 
   const tableBody = document.createElement('tbody');
   render(
