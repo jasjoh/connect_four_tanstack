@@ -58,6 +58,7 @@ export function PlayerListing({ player, action, actionType } : PlayerListingProp
       <td className="PlayerListing-td">{`${player.id}`}</td>
       <td className="PlayerListing-td">{`${player.name}`}</td>
       <td className="PlayerListing-td"
+        id="PlayerListing-td-color"
         style={{
           backgroundColor: `${player.color}`,
           width: `20px`
