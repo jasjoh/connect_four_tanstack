@@ -14,17 +14,33 @@ import { GameData } from "../server";
  * GameDetails -> GameDetailsPropertyList
  * */
 
-export function GameDetailsPropertyList({gameData} : {gameData: GameData}) : JSX.Element {
+export function GameDetailsPropertyList({ gameData }: { gameData: GameData; }): JSX.Element {
   // console.log("GameDetailsPropertyList re-rendered");
   return (
     <div className="GameDetailsPropertyList">
       <div>
-        <span className="GameDetailsPropertyList-prop">Game ID:</span>
-        <span className="GameDetailsPropertyList-val">{gameData.id}</span>
+        <span
+          className="GameDetailsPropertyList-prop"
+          id="GameDetailsPropertyList-prop-gameId">
+          Game ID:
+        </span>
+        <span
+          className="GameDetailsPropertyList-val"
+          id="GameDetailsPropertyList-val-gameId">
+          {gameData.id}
+        </span>
       </div>
       <div>
-        <span className="GameDetailsPropertyList-prop">Game State:</span>
-        <span className="GameDetailsPropertyList-val">{gameStates[gameData.gameState]}</span>
+        <span
+          className="GameDetailsPropertyList-prop"
+          id="GameDetailsPropertyList-prop-gameState">
+          Game State:
+        </span>
+        <span
+          className="GameDetailsPropertyList-val"
+          id="GameDetailsPropertyList-val-gameState">
+          {gameStates[gameData.gameState]}
+        </span>
       </div>
     </div>
   );

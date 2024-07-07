@@ -29,10 +29,13 @@ export function LoadingSpinner() : JSX.Element {
     async function startExtendedLoadingTimer() : Promise<void> {
       // console.log("startExtendedLoadingTimerOnMount() called thus component is being re-mounted");
       await delay(5000);
+      console.log("delay occurred; setting extended true");
       setExtendedLoading(true);
     }
     startExtendedLoadingTimer();
   }, [])
+
+  console.log("rendering; extendedLoading:", extendedLoading);
 
   return (
     <div className="LoadingSpinner">
