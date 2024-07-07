@@ -1,5 +1,5 @@
 ## Connect Four - TanStack Refactor
-#### A refactor of my previous Connect Four Super project
+#### A refactor of my previous [Connect Four Super](https://github.com/jasjoh/connect_four_super) project
 ##### Key Features
 - Leverages TanStack to manage all client -> server communications
 
@@ -12,8 +12,10 @@
 - Jest
 
 ##### Notable Engineering
-- ~80% unit server test coverage
+- Server unit test coverage 80%
+- Client unit test coverage 40%
 - Factory Functions to support testing
+- Singleton usage for server interactions
 
 ### Local Setup
 - use `npm install` in /client to install client dependencies
