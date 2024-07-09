@@ -5,11 +5,11 @@ import { Player } from "../../server";
 
 import { BoardPlayCell } from "./BoardPlayCell";
 
-/** Displays a row where game pieces end up after being dropped
+/** Displays a game board row where game pieces end up after being dropped
  *
  * Props:
- *  - rowState: A row on the game board [ { playerId, highlight } ]
- *  - gamePlayers: An array of player objects { id, name, ai, color, createdOn }
+ *  - rowState: The game state of a row on the game board
+ *  - gamePlayers: The list of players playing the game associated with this board
  *
  * State:
  *  - None
@@ -18,8 +18,8 @@ import { BoardPlayCell } from "./BoardPlayCell";
  * BoardPlayRow -> BoardPlayCell
  * */
 export function BoardPlayRow(
-  { rowState, gamePlayers } : { rowState: ClientBoardCell[], gamePlayers: Player[]}
-) : JSX.Element {
+  { rowState, gamePlayers }: { rowState: ClientBoardCell[], gamePlayers: Player[]; }
+): JSX.Element {
   // console.log("BoardPlayRow re-rendered");
   // console.log("rowState passed in is:", rowState);
 
@@ -28,14 +28,14 @@ export function BoardPlayRow(
     let color = undefined;
     let highlight = false;
     if (rowState[i].playerId) {
-      const player = gamePlayers.find(p => p.id === rowState[i].playerId)
+      const player = gamePlayers.find(p => p.id === rowState[i].playerId);
       color = player!.color;
     }
     if (rowState[i].highlight) { highlight = true; }
     cellsJsx.push(
       <BoardPlayCell key={i} highlight={highlight} color={color} />
-    )
+    );
   }
 
-  return (<tr className="BoardPlayRow">{ cellsJsx.map( cell => cell ) }</tr>);
+  return (<tr className="BoardPlayRow">{cellsJsx.map(cell => cell)}</tr>);
 }

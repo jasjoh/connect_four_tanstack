@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { BoardPlayCell } from './BoardPlayCell'
+import { BoardPlayCell } from './BoardPlayCell';
 import { GamePiece } from './GamePiece';
 
 jest.mock('./GamePiece');
@@ -38,5 +38,5 @@ test('BoardPlayRow passes correct params to child component', () => {
 
   expect(GamePiece).toHaveBeenCalledWith({
     color: '#c3c3c3'
-  }, expect.anything()) // expect.anything() accounts for {} passed in all React calls
+  }, expect.anything()); // expect.anything() accounts for {} passed in all React calls
 });

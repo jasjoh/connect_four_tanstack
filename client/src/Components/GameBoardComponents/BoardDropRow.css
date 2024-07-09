@@ -1,9 +1,7 @@
-
-
 /* top-row is the row of clickable cells to drop pieces into a column */
 
 .BoardDropRow td {
-  background-color:rgb(255, 244, 179);
+  background-color: rgb(255, 244, 179);
   border: dashed 1px lightgray;
 }
 

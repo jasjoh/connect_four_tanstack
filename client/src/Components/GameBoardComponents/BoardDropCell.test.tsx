@@ -1,16 +1,11 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
-import { BoardDropCell } from './BoardDropCell'
-
-/**
- * Called w/ colIndex and dropPiece() callback
- * Renders a single TD w/ a click handler called handleClick which calls dropPiece
- */
+import { BoardDropCell } from './BoardDropCell';
 
 test('renders BoardDropCell component without crashing', () => {
   const tableRow = document.createElement('tr');
   const { container } = render(
-    <BoardDropCell colIndex={1} dropPiece={() => {}} />,
+    <BoardDropCell colIndex={1} dropPiece={() => { }} />,
     { container: document.body.appendChild(tableRow) }
   );
 
@@ -26,7 +21,7 @@ test('calls dropPiece() with passed in colIndex on click', () => {
   }
 
   const { container } = render(
-    <BoardDropCell colIndex={3} dropPiece={(dropPiece)}/>,
+    <BoardDropCell colIndex={3} dropPiece={(dropPiece)} />,
     { container: document.body.appendChild(tableRow) }
   );
 

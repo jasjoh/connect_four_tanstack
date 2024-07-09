@@ -3,23 +3,16 @@ import { render } from '@testing-library/react';
 
 import * as Mocks from '../../mocks';
 
-import { BoardPlayRow } from './BoardPlayRow'
+import { BoardPlayRow } from './BoardPlayRow';
 import { BoardPlayCell } from './BoardPlayCell';
 import { ClientBoardCell } from '../../gameManager';
 import { GamePlayer } from '../../server';
 
-/**
- * Accepts a number of cols, players and highlights
- * Creates a row of the specific number of columns (default to 1)
- * Assigns players
- *
- */
-
 jest.mock('./BoardPlayCell');
 
-const rowStateEmpty : ClientBoardCell[] = Mocks.mockClientBoard[0] ;
-const rowStateWithPieces : ClientBoardCell[] = Mocks.mockClientBoard[1] ;
-const gamePlayers : GamePlayer[] = Mocks.mockGamePlayers;
+const rowStateEmpty: ClientBoardCell[] = Mocks.mockClientBoard[0];
+const rowStateWithPieces: ClientBoardCell[] = Mocks.mockClientBoard[1];
+const gamePlayers: GamePlayer[] = Mocks.mockGamePlayers;
 
 test('BoardPlayRow renders without crashing when passed valid props', () => {
 
@@ -48,7 +41,7 @@ test('BoardPlayRow passes correct params to correct # child components', () => {
   expect(BoardPlayCell).toHaveBeenCalledWith({
     color: undefined,
     highlight: false
-  }, expect.anything()) // expect.anything() accounts for {} passed in all React calls
+  }, expect.anything()); // expect.anything() accounts for {} passed in all React calls
 });
 
 test('BoardPlayRow passes correct highlight and color values to child component', () => {
@@ -64,5 +57,5 @@ test('BoardPlayRow passes correct highlight and color values to child component'
   expect(BoardPlayCell).toHaveBeenCalledWith({
     color: '#c3c5c1',
     highlight: true
-  }, expect.anything()) // expect.anything() accounts for {} passed in all React calls
+  }, expect.anything()); // expect.anything() accounts for {} passed in all React calls
 });

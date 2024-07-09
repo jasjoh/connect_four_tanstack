@@ -2,12 +2,12 @@ import React from "react";
 
 import { BoardDropCell } from "./BoardDropCell";
 
-import "./BoardDropRow.css"
+import "./BoardDropRow.css";
 
 /** Displays the row where game pieces are 'dropped'
  *
  * Props:
- *  - width: The width (# of cells) that should be rendered
+ *  - width: The game board width (# of cells) that should be rendered
  *  - dropPiece(): A callback function for when a player attempts to drop a piece
  *
  * State:
@@ -17,7 +17,7 @@ import "./BoardDropRow.css"
  *
  * BoardDropRow -> BoardDropCell
  * */
-export function BoardDropRow({ width, dropPiece } : { width: number, dropPiece: (col: number) => void }) {
+export function BoardDropRow({ width, dropPiece }: { width: number, dropPiece: (col: number) => void; }) {
   // console.log("BoardDropRow re-rendered, passed width of:", width);
 
   let cellsJsx = [];
@@ -29,7 +29,5 @@ export function BoardDropRow({ width, dropPiece } : { width: number, dropPiece: 
     curCol++;
   }
 
-  // console.log("drop row cells array populated:", cellsJsx);
-
-  return (<tr className="BoardDropRow">{ cellsJsx.map( cell => cell )}</tr>);
+  return (<tr className="BoardDropRow">{cellsJsx.map(cell => cell)}</tr>);
 }
