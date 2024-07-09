@@ -1,5 +1,35 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Server } from "./server";
+import { Server, GamePlayer } from "./server";
+
+/**
+ * Queries Server.getPlayers() for the specified game and then compares the results
+ * against the provided list of game players to determine (and return) a list of
+ * available players to add to the game.
+ */
+export function useAvailableGamePlayersQuery(server: Server, gameId: string, gamePlayers: GamePlayer[]) {
+    return useQuery({
+        queryKey: ['availableGamePlayers', gameId],
+        queryFn: async () => {
+            const playerList = await server.getPlayers();
+            // const gamePlayers = await server.getPlayersForGame(gameId);
+            const availPlayers = playerList.filter(p => {
+                const matchedPlayers = gamePlayers.find(gp => {
+                    return gp.id === p.id;
+                });
+                return matchedPlayers === undefined;
+            });
+            return availPlayers;
+        }
+    });
+}
+
+/** Queries Server.getPlayers() to retrieve all players */
+export function usePlayersQuery(server: Server) {
+    return useQuery({
+        queryKey: ['players'],
+        queryFn: async () => await server.getPlayers()
+    });
+}
 
 /** Queries Server.getGame() for the specific game */
 export function useGameDetailsQuery(server: Server, gameId: string) {
@@ -14,7 +44,7 @@ export function useGamePlayersQuery(server: Server, gameId: string) {
     return useQuery({
         queryKey: ['gamePlayers', gameId],
         queryFn: async () => await server.getPlayersForGame(gameId!)
-    })
+    });
 }
 
 /** Supports mutation of a specific player after initializing with a server and game */
@@ -23,8 +53,12 @@ export function useRemovePlayerMutation(server: Server, gameId: string) {
 
     return useMutation({
         mutationFn: async (playerId: string) => await server.removePlayerFromGame(gameId, playerId),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gamePlayers', gameId] })
-    })
+        onSuccess: () => {
+            // TODO: Would be great to fire an event like 'playersChanged' and have an event handler do this
+            queryClient.invalidateQueries({ queryKey: ['gamePlayers', gameId] });
+            queryClient.invalidateQueries({ queryKey: ['availableGamePlayers', gameId] });
+        }
+    });
 }
 
 /** Calls Server.addPlayersToGame() for the specified player and game */
@@ -33,6 +67,10 @@ export function useAddPlayerMutation(server: Server, gameId: string) {
 
     return useMutation({
         mutationFn: async (playerIds: string[]) => await server.addPlayersToGame(gameId!, playerIds),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gamePlayers', gameId] })
-    })
+        onSuccess: () => {
+            // TODO: Would be great to fire an event like 'playersChanged' and have an event handler do this
+            queryClient.invalidateQueries({ queryKey: ['gamePlayers', gameId] });
+            queryClient.invalidateQueries({ queryKey: ['availableGamePlayers', gameId] });
+        }
+    });
 }

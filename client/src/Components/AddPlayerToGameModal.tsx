@@ -1,5 +1,6 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useAvailableGamePlayersQuery } from "../hooks";
 
 import * as C4Server from "../server";
 
@@ -16,7 +17,7 @@ interface AddPlayerToGameModalProps {
   addPlayerToGame: (playerId: string) => void;
 }
 
-/** Displays a list of players to add to a game and allows adding them
+/** Modal which displays a list of players to add to a game and allows adding them
  *
  * Props:
  *  - isOpen: a flag indicating whether to render content in this modal
@@ -26,8 +27,7 @@ interface AddPlayerToGameModalProps {
  *  - addPlayerToGame(): a callback function which will add a player to the game
  *
  * State:
- *  - availPlayersList: The list of players available to add to a game
- *  - isLoading: A flag to keep track of whether players have been loaded
+ * - server: The singleton instance of the Server to use
  *
  * GameDetails -> AddPlayerToGameModal
  * AddPlayerToGameModal -> PlayerList
@@ -40,49 +40,22 @@ export function AddPlayerToGameModal (
   // console.log("AddPlayerToGameModal re-rendered");
   // console.log("received gamePlayers:", gamePlayers);
 
-  const [availPlayersList, setAvailPlayersList] = useState<C4Server.Player[]|null>(null);
-  const [server, setServer] = useState<C4Server.ServerInterface>(C4Server.Server.getInstance());
-  const [isLoading, setIsLoading] = useState(true);
+  const [server, setServer] = useState<C4Server.Server>(C4Server.Server.getInstance());
 
-  /** Performs a diff of game players to all players to determine avail players
-   * Fetches updated player list on mount and changing of: gameId, modal state and gamePlayers
-   * Updates isLoading once finished to force a re-render
-   */
-  useEffect(function fetchAndFilterPlayerListOnMount() : void {
-    async function fetchAndFilterPlayerListings() : Promise<void>{
-      // console.log("fetchPlayerListOnMount() called thus component is being re-mounted");
-      const playerList = await server.getPlayers();
-      // console.log("retrieved playerList:", playerList);
-      // console.log("performing player filter");
-      const availPlayers = playerList.filter(p => {
-        // console.log(`evaluating player: ${p.id} from the list of all players.`);
-        const matchedPlayers = gamePlayers.find(gp =>
-          {
-            // console.log(`comparing player in game ${gp.id} and seeing if it matches that player: ${p.id}`)
-            return gp.id === p.id;
-          })
-        // console.log("matched players:", matchedPlayers);
-        return matchedPlayers === undefined;
-      })
-      // console.log("available players determined to be:", availPlayers);
-      setAvailPlayersList(availPlayers);
-      setIsLoading(false);
-    }
-
-    if (isOpen) {
-      fetchAndFilterPlayerListings();
-    }
-  }, [gameId, isOpen, gamePlayers])
+  const availableGamePlayers = useAvailableGamePlayersQuery(server, gameId, gamePlayers);
 
   // used for modal rendering
   if (!isOpen) return null;
-  if (isLoading) return ( <LoadingSpinner /> );
+
+  if (availableGamePlayers.isPending) return (<LoadingSpinner />);
+
+  if (availableGamePlayers.error) return (<div>'A TanStack error has occurred ...'</div>);
 
   return (
     <div className="AddPlayerToGameModal">
       <div className="AddPlayerToGameModal-overlay">
         <div className="AddPlayerToGameModal-content">
-          <PlayerList action={addPlayerToGame} actionType={'addPlayerToGame'} playerList={availPlayersList!} />
+          <PlayerList action={addPlayerToGame} actionType={'addPlayerToGame'} playerList={availableGamePlayers.data} />
           <button className="AddPlayerToGameModal-finishButton" onClick={closeModal}>Finished Adding Players</button>
         </div>
       </div>

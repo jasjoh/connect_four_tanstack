@@ -39,7 +39,7 @@ import {
  *
  * GameDetails -> LoadingSpinner
  * */
-export function GameDetails() {
+export function GameDetails() : JSX.Element {
   // console.log("GameDetails re-rendered");
 
   const [server, setServer] = useState<C4Server.Server>(C4Server.Server.getInstance());
@@ -88,7 +88,7 @@ export function GameDetails() {
 
   if (gamePlayers.isPending || gameDetails.isPending) return (<LoadingSpinner />);
 
-  if (gamePlayers.error || gameDetails.error) return ('A TanStack error has occurred ...');
+  if (gamePlayers.error || gameDetails.error) return (<div>'A TanStack error has occurred ...'</div>);
 
   return (
     <div className="GameDetails">
