@@ -1,16 +1,21 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import * as C4Server from "../server";
 
 import { PlayerList } from "./PlayerList";
 import { AddPlayerToGameModal } from "./AddPlayerToGameModal";
-import { LoadingSpinner } from "./LoadingSpinner";
+// import { LoadingSpinner } from "./LoadingSpinner";
 import { GameDetailsPropertyList } from "./GameDetailsPropertyList";
 
 import "./GameDetails.css";
+import {
+  useGamePlayersQuery,
+  useGameDetailsQuery,
+  useAddPlayerMutation,
+  useRemovePlayerMutation
+} from "../hooks";
 
 /** Displays the details of a game
  *
@@ -39,33 +44,17 @@ import "./GameDetails.css";
 export function GameDetails() {
   // console.log("GameDetails re-rendered");
 
-  const [server, setServer] = useState<C4Server.ServerInterface>(C4Server.Server.getInstance());
+  const [server, setServer] = useState<C4Server.Server>(C4Server.Server.getInstance());
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { gameId } = useParams();
   const navigate = useNavigate();
 
-  const queryClient = useQueryClient();
+  const gameDetails = useGameDetailsQuery(server, gameId!);
+  const gamePlayers = useGamePlayersQuery(server, gameId!);
 
-  const gameDetailsQuery = useQuery({
-    queryKey: ['gameDetails', gameId],
-    queryFn: async () => await server.getGame(gameId!)
-  })
-
-  const gamePlayersQuery = useQuery({
-    queryKey: ['gamePlayers', gameId],
-    queryFn: async () => await server.getPlayersForGame(gameId!)
-  })
-
-  const removePlayerMutation = useMutation({
-    mutationFn: async (playerId: string) => await server.removePlayerFromGame(gameId!, playerId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gamePlayers', gameId]})
-  })
-
-  const addPlayerMutation = useMutation({
-    mutationFn: async (playerId: string) => await server.addPlayersToGame(gameId!, [playerId]),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gamePlayers', gameId]})
-  })
+  const removePlayerMutation = useRemovePlayerMutation(server, gameId!);
+  const addPlayerMutation = useAddPlayerMutation(server, gameId!);
 
   /** Called when a user clicks on a REMOVE button to remove a player from a game
    * Calls ConnectFourServerApi.removePlayerFromGame(), fetches an updated player list
@@ -82,7 +71,7 @@ export function GameDetails() {
    */
   async function addPlayerToGame(playerId : string) : Promise<void> {
     // console.log("addPlayerToGame() called for player ID:", playerId);
-    addPlayerMutation.mutate(playerId);
+    addPlayerMutation.mutate([playerId]);
   }
 
   /** Navigates to play a game */
@@ -101,21 +90,21 @@ export function GameDetails() {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  if (gamePlayersQuery.isPending || gameDetailsQuery.isPending) return ( 'TanStack Loading ...' );
+  if (gamePlayers.isPending || gameDetails.isPending) return ( 'TanStack Loading ...' );
 
-  if (gamePlayersQuery.error || gameDetailsQuery.error) return ( 'A TanStack error has occurred ...');
+  if (gamePlayers.error || gameDetails.error) return ( 'A TanStack error has occurred ...');
 
   return (
     <div className="GameDetails">
       <AddPlayerToGameModal
         isOpen={isModalOpen}
         gameId={gameId!}
-        gamePlayers={gamePlayersQuery.data}
+        gamePlayers={gamePlayers.data}
         closeModal={closeModal}
         addPlayerToGame={addPlayerToGame} />
       <div className="GameDetails-gameDetails">
         <div className="GameDetails-gameDetails-title">Game Details</div>
-        <GameDetailsPropertyList gameData={gameDetailsQuery.data.gameData} />
+        <GameDetailsPropertyList gameData={gameDetails.data.gameData} />
         <div className="GameDetails-buttons">
           <button onClick={playGame} className="GameDetails-gameDetails-button">Play</button>
           <button onClick={deleteGame} className="GameDetails-gameDetails-button">Delete</button>
@@ -123,8 +112,8 @@ export function GameDetails() {
         </div>
       </div>
       <div className="GameDetails-gamePlayers">
-        { gamePlayersQuery.data.length > 0 ?
-        ( <PlayerList playerList={gamePlayersQuery.data} action={removePlayer} actionType={'removePlayer'} /> ) :
+        { gamePlayers.data.length > 0 ?
+        ( <PlayerList playerList={gamePlayers.data} action={removePlayer} actionType={'removePlayer'} /> ) :
         ( <div>No Players Added to Game</div> ) }
       </div>
     </div>
