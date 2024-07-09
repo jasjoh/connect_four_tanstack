@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Server, GamePlayer } from "./server";
+import { Server, GamePlayer, NewGameDimensions } from "./server";
 
 /**
  * Queries Server.getPlayers() for the specified game and then compares the results
@@ -28,6 +28,14 @@ export function usePlayersQuery(server: Server) {
     return useQuery({
         queryKey: ['players'],
         queryFn: async () => await server.getPlayers()
+    });
+}
+
+/** Queries Server.getGame() for the specific game */
+export function useGameListQuery(server: Server) {
+    return useQuery({
+        queryKey: ['gameList'],
+        queryFn: async () => await server.getGames()
     });
 }
 
@@ -71,6 +79,18 @@ export function useAddPlayerMutation(server: Server, gameId: string) {
             // TODO: Would be great to fire an event like 'playersChanged' and have an event handler do this
             queryClient.invalidateQueries({ queryKey: ['gamePlayers', gameId] });
             queryClient.invalidateQueries({ queryKey: ['availableGamePlayers', gameId] });
+        }
+    });
+}
+
+/** Calls Server.addGame() with the specified game dimensions */
+export function useCreateGameMutation(server: Server) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (dimensions: NewGameDimensions) => await server.createGame(dimensions),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['gameList']});
         }
     });
 }

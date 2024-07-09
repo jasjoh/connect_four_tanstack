@@ -42,20 +42,20 @@ export function AddPlayerToGameModal (
 
   const [server, setServer] = useState<C4Server.Server>(C4Server.Server.getInstance());
 
-  const availableGamePlayers = useAvailableGamePlayersQuery(server, gameId, gamePlayers);
+  const availableGamePlayersQuery = useAvailableGamePlayersQuery(server, gameId, gamePlayers);
 
   // used for modal rendering
   if (!isOpen) return null;
 
-  if (availableGamePlayers.isPending) return (<LoadingSpinner />);
+  if (availableGamePlayersQuery.isPending) return (<LoadingSpinner />);
 
-  if (availableGamePlayers.error) return (<div>'A TanStack error has occurred ...'</div>);
+  if (availableGamePlayersQuery.error) return (<div>'A TanStack error has occurred ...'</div>);
 
   return (
     <div className="AddPlayerToGameModal">
       <div className="AddPlayerToGameModal-overlay">
         <div className="AddPlayerToGameModal-content">
-          <PlayerList action={addPlayerToGame} actionType={'addPlayerToGame'} playerList={availableGamePlayers.data} />
+          <PlayerList action={addPlayerToGame} actionType={'addPlayerToGame'} playerList={availableGamePlayersQuery.data} />
           <button className="AddPlayerToGameModal-finishButton" onClick={closeModal}>Finished Adding Players</button>
         </div>
       </div>

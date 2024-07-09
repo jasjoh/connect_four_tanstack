@@ -39,7 +39,7 @@ import {
  *
  * GameDetails -> LoadingSpinner
  * */
-export function GameDetails() : JSX.Element {
+export function GameDetails(): JSX.Element {
   // console.log("GameDetails re-rendered");
 
   const [server, setServer] = useState<C4Server.Server>(C4Server.Server.getInstance());

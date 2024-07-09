@@ -1,12 +1,14 @@
 import React from "react";
 import { useState } from "react";
 
-export interface GameCreateFormData {
+import { NewGameDimensions } from "../server";
+
+import "./GameCreateForm.css";
+
+interface GameCreateFormData {
   width: string;
   height: string;
 }
-
-import "./GameCreateForm.css"
 
 /** A form for creating a new game
  *
@@ -20,8 +22,8 @@ import "./GameCreateForm.css"
  * */
 
 export function GameCreateForm(
-  { createGame } : {createGame : (formData: GameCreateFormData) => void }
-) : JSX.Element {
+  { createGame }: { createGame: (dimensions: NewGameDimensions) => void; }
+): JSX.Element {
   // console.log("GameCreateForm re-rendered");
 
   const [formData, setFormData] = useState<GameCreateFormData>({
@@ -30,27 +32,27 @@ export function GameCreateForm(
   });
 
   // updates the form input as the user types
-  function handleChange(evt : React.ChangeEvent) {
+  function handleChange(evt: React.ChangeEvent) {
 
     const htmlTarget = evt.target as HTMLFormElement;
 
     let { name, value } = htmlTarget;
-    setFormData( formData => ({
+    setFormData(formData => ({
       ...formData,
       [name]: value
-    }))
+    }));
   }
 
   // calls the createGame() callback on form submission
-  function handleSubmit(evt : React.FormEvent) {
+  function handleSubmit(evt: React.FormEvent) {
     // console.log("handleSubmit called");
     evt.preventDefault();
-    createGame(formData);
+    createGame({width: Number(formData.width), height: Number(formData.height)});
   }
 
   return (
     <div className="GameCreateForm">
-      <form onSubmit={ handleSubmit }>
+      <form onSubmit={handleSubmit}>
         <div className="GameCreateForm-title">
           Create a New Game
         </div>

@@ -21,6 +21,11 @@ export interface GamePlayer extends Player {
   playOrder: number;
 }
 
+export interface NewGameDimensions {
+  width: number;
+  height: number;
+}
+
 export interface GameData {
   boardData: BoardCell[][],
   boardHeight: number;
@@ -107,7 +112,7 @@ export interface ServerInterface {
   getPlayer(pId: string): Promise<Player>;
   getPlayersForGame(gameId: string): Promise<GamePlayer[]>;
   createPlayer(player: NewPlayer): Promise<Player>;
-  createGame(dimensions: { height: string, width: string; }): Promise<GameData>;
+  createGame(dimensions: NewGameDimensions): Promise<GameData>;
   startGame(gameId: string): Promise<void>;
   dropPiece(gameId: string, playerId: string, col: number): Promise<void>;
   addPlayersToGame(gameId: string, players: string[]): Promise<AddPlayerToGameResponseData>;
@@ -217,7 +222,7 @@ export class Server implements ServerInterface {
    * Returns the created game (GameData)
    *    placedPieces, winningSet, currPlayerId, createdOn, totalPlayers }
    */
-  async createGame(dimensions: { height: string, width: string; }): Promise<GameData> {
+  async createGame(dimensions: NewGameDimensions): Promise<GameData> {
     const data: PostGameResponseData = await this._request(`games`, dimensions, 'POST');
     // console.log("created game:", data);
     return data.game;

@@ -22,8 +22,8 @@ const queryClient = new QueryClient();
  * App -> BrowserRouter -> NavBar
  * App -> BrowserRouter -> RoutesList
  *  */
-export function App() : JSX.Element {
-// const App: React.FC = () => {
+export function App(): JSX.Element {
+  // const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
