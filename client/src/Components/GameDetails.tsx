@@ -1,12 +1,12 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import * as C4Server from "../server";
 
 import { PlayerList } from "./PlayerList";
 import { AddPlayerToGameModal } from "./AddPlayerToGameModal";
-// import { LoadingSpinner } from "./LoadingSpinner";
+import { LoadingSpinner } from "./LoadingSpinner";
 import { GameDetailsPropertyList } from "./GameDetailsPropertyList";
 
 import "./GameDetails.css";
@@ -26,10 +26,8 @@ import {
  * - gameId: The ID of the game to display the details of
  *
  * State:
- * - game: The game object
- * - gamePlayers: The players currently part of the game
+ * - server: The singleton instance of the Server to use
  * - isModalOpen: Used for managing the 'add players to game' modal
- * - isLoading: Used for keeping track of whether game data is loaded or not
  *
  * GameList -> (navigation) -> GameDetails
  * PlayGame -> (navigation) -> GameDetails
@@ -56,32 +54,30 @@ export function GameDetails() {
   const removePlayerMutation = useRemovePlayerMutation(server, gameId!);
   const addPlayerMutation = useAddPlayerMutation(server, gameId!);
 
-  /** Called when a user clicks on a REMOVE button to remove a player from a game
-   * Calls ConnectFourServerApi.removePlayerFromGame(), fetches an updated player list
-   * and then updates component state to cause a re-render.
+  /**
+   * Callback function for when a user clicks on a REMOVE button to remove a player from a game
+   * Calls removePlayerMutation.mutate() on the playerId provided in the callback
    */
-  async function removePlayer(playerId: string) : Promise<void> {
-    // console.log("removePlayer() called for player ID:", playerId);
-    removePlayerMutation.mutate(playerId);
-  }
+  const removePlayer = useCallback(async (playerId: string) => {
+    await removePlayerMutation.mutateAsync(playerId);
+  }, []);
 
-  /** Called when a user adds a player to a game from the 'add player to game' modal
-   * Calls ConnectFourServerApi.addPlayersToGame(), fetches an updated player list
-   * and then updates component state to cause a re-render.
+  /**
+   * Callback function for when a user clicks on a ADD button to add a player to a game
+   * Calls addPlayerMutation.mutate() on the playerId provided in the callback
    */
-  async function addPlayerToGame(playerId : string) : Promise<void> {
-    // console.log("addPlayerToGame() called for player ID:", playerId);
-    addPlayerMutation.mutate([playerId]);
-  }
+  const addPlayerToGame = useCallback(async (playerId: string) => {
+    await addPlayerMutation.mutateAsync([playerId]);
+  }, []);
 
   /** Navigates to play a game */
-  async function playGame() : Promise<void> {
+  async function playGame(): Promise<void> {
     // console.log("playGame() called");
     navigate(`/games/${gameId}/play`);
   }
 
   /** Deletes a game and then navigates back to root / home */
-  async function deleteGame() : Promise<void> {
+  async function deleteGame(): Promise<void> {
     // console.log("deleteGame() called");
     await server.deleteGame(gameId!);
     navigate(`/`);
@@ -90,9 +86,9 @@ export function GameDetails() {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  if (gamePlayers.isPending || gameDetails.isPending) return ( 'TanStack Loading ...' );
+  if (gamePlayers.isPending || gameDetails.isPending) return (<LoadingSpinner />);
 
-  if (gamePlayers.error || gameDetails.error) return ( 'A TanStack error has occurred ...');
+  if (gamePlayers.error || gameDetails.error) return ('A TanStack error has occurred ...');
 
   return (
     <div className="GameDetails">
@@ -112,9 +108,9 @@ export function GameDetails() {
         </div>
       </div>
       <div className="GameDetails-gamePlayers">
-        { gamePlayers.data.length > 0 ?
-        ( <PlayerList playerList={gamePlayers.data} action={removePlayer} actionType={'removePlayer'} /> ) :
-        ( <div>No Players Added to Game</div> ) }
+        {gamePlayers.data.length > 0 ?
+          (<PlayerList playerList={gamePlayers.data} action={removePlayer} actionType={'removePlayer'} />) :
+          (<div>No Players Added to Game</div>)}
       </div>
     </div>
   );
