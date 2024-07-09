@@ -59,12 +59,12 @@ export function GameDetails() {
 
   const removePlayerMutation = useMutation({
     mutationFn: async (playerId: string) => await server.removePlayerFromGame(gameId!, playerId),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gamePlayersQuery', gameId]})
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gamePlayers', gameId]})
   })
 
   const addPlayerMutation = useMutation({
     mutationFn: async (playerId: string) => await server.addPlayersToGame(gameId!, [playerId]),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gamePlayersQuery', gameId]})
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['gamePlayers', gameId]})
   })
 
   /** Called when a user clicks on a REMOVE button to remove a player from a game

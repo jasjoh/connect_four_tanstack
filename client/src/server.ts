@@ -243,8 +243,8 @@ export class Server implements ServerInterface {
    * Returns the updated player count (AddPlayerToGameResponseData)
    */
   async addPlayersToGame(gameId: string, players: string[]): Promise<AddPlayerToGameResponseData> {
+    console.log("Server.addPlayersToGame() called for players, ", players);
     const data: AddPlayerToGameResponseData = await this._request(`games/${gameId}/players`, players, 'POST');
-    // console.log("updated player count:", data);
     return data;
   }
 
@@ -257,8 +257,8 @@ export class Server implements ServerInterface {
   /** Removes a player from the specified game
    * Returns undefined if successful and throws error otherwise */
   async removePlayerFromGame(gameId: string, playerId: string): Promise<void> {
+    console.log("Server.removePlayerFromGame() called for player, ", playerId);
     await this._request(`games/${gameId}/players/${playerId}`, {}, 'DELETE');
-    // console.log("removed player response:", data);
     return undefined;
   }
 
