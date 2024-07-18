@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Server, GamePlayer, NewGameDimensions } from "./server";
+import { Server, GamePlayer, NewGameDimensions, NewPlayer } from "./server";
 
 /**
  * Queries Server.getPlayers() for the specified game and then compares the results
@@ -91,6 +91,32 @@ export function useCreateGameMutation(server: Server) {
         mutationFn: async (dimensions: NewGameDimensions) => await server.createGame(dimensions),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['gameList']});
+        }
+    });
+}
+
+/** Calls Server.createPlayer() with the specified NewPlayer data */
+export function useCreatePlayerMutation(server: Server) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (player: NewPlayer) => await server.createPlayer(player),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['players']});
+            queryClient.invalidateQueries({ queryKey: ['availableGamePlayers'] });
+        }
+    });
+}
+
+/** Calls Server.deletePlayer() with the specified player ID */
+export function useDeletePlayerMutation(server: Server) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (playerId: string) => await server.deletePlayer(playerId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['players']});
+            queryClient.invalidateQueries({ queryKey: ['availableGamePlayers'] });
         }
     });
 }

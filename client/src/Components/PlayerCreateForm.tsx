@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import "./PlayerCreateForm.css"
+import { NewPlayer } from "../server";
 
 export interface PlayerCreateFormData {
   ai: boolean;
@@ -55,7 +56,7 @@ export function PlayerCreateForm(
   function handleSubmit(evt : React.FormEvent) {
     // console.log("handleSubmit called");
     evt.preventDefault();
-    createPlayer(formData);
+    createPlayer(formData as NewPlayer);
   }
 
   return (
