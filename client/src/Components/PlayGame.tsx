@@ -1,8 +1,14 @@
 import React from "react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import { GameManager, GameManagerInterface } from "../gameManager";
+import { Server } from "../server";
+import {
+  useClientBoardAndGameData,
+  useGamePlayersQuery,
+  useStartGameMutation,
+  useDeleteGameMutation
+} from "../hooks";
 
 import { PlayerList } from "./PlayerList";
 import { GameBoard } from "./GameBoardComponents/GameBoard";
@@ -19,9 +25,8 @@ import { GameDetailsPropertyList } from "./GameDetailsPropertyList";
  *
  * State:
  * - isLoading: Whether the component is still loading server data or not
- * - gameManager: The instance of the GameManager associated with the game being played
- * - renderToggle: A helper state for re-rendering when server-state mutates in the GameManager
- *
+ * - clientBoardAndGameDataQuery.data.gameData The instance of the clientBoardAndGameDataQuery.data.gameDataassociated with the game being played
+ * - renderToggle: A helper state for re-rendering when server-state mutates in the clientBoardAndGameDataQuery.data.gameData *
  * GameDetails -> (gameId) -> PlayGame
  * /games/{gameId} -> PlayGame
  *
@@ -32,52 +37,33 @@ import { GameDetailsPropertyList } from "./GameDetailsPropertyList";
  * PlayGame -> LoadingSpinner
  */
 export function PlayGame() {
-  // console.log("PlayGame re-rendered");
+  console.log("PlayGame re-rendered");
+  const [server, setServer] = useState<Server>(Server.getInstance());
+
   const { gameId } = useParams();
   const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [gameManager, setGameManager] = useState<GameManagerInterface|null>(null);
+  const clientBoardAndGameDataQuery = useClientBoardAndGameData(server, gameId!);
+  const gamePlayersQuery = useGamePlayersQuery(server, gameId!);
 
-  /** Hack to handle the fact game state is mutating server-side and avoid
-   * having to generate new GameManagers each time game state is updated */
-  // eslint-disable-next-line
-  const [renderToggle, setRenderToggle] = useState(false);
-
-  /** Constructs a new GameManager on mount or on changing of gameId
-  * After construction, initializes the new GameManager and then sets state
-  * Once the new GameManager state is set, sets isLoading to false
-  */
-  useEffect(function initializeGameManagerEffect() : void {
-    async function initializeGameManager() : Promise<void>{
-      const newGameManager: GameManagerInterface = new GameManager(gameId!, forceReRender);
-      await newGameManager.initialize();
-      setGameManager(newGameManager);
-      setIsLoading(false);
-    }
-    // console.log("initializeGameManagerFetch() called; component re-mounted or gameId changed");
-    initializeGameManager();
-  }, [gameId]);
-
-  /** Used by the gameManager as a callback function to force re-render when game state is updated  */
-  function forceReRender() : void {
-    // console.log("PlayGame.forceReRender() called");
-    setRenderToggle(prevValue => { return !prevValue; });
-  }
+  const startGameMutation = useStartGameMutation(server);
+  const deleteGameMutation = useDeleteGameMutation(server);
 
   /** Called when a user clicks on the start or re-start button
-   * Calls the GameManager's startGame() function  */
+   * Calls the startGameMutation mutate function  */
   async function startGame() : Promise<void> {
     // console.log("startGame() called");
-    await gameManager!.startGame();
+    await startGameMutation.mutateAsync(gameId!);
   }
 
   /** Called when a user clicks the button to delete the current game
-   * Calls the GameManager's deleteGame() function */
+   * Calls the deleteGameMutation mutate function and navigates to root */
   async function deleteGame() : Promise<void> {
-    // console.log("deleteGame() called");
-    await gameManager!.deleteGame();
+    console.log("deleteGame() called");
+    await deleteGameMutation.mutateAsync(gameId!);
+    console.log("deleteGameMutation finished.");
     navigate(`/`);
+    console.log("deleteGame() exiting");
   }
 
   /** Called when a user clicks the button to manage the players in a game
@@ -87,30 +73,28 @@ export function PlayGame() {
     navigate(`/games/${gameId}`);
   }
 
-  /** Called when a user drops a piece in a drop row
-   * Calls the GameManager's dropPiece() function */
-  // async function dropPiece(colIndex: number) : Promise<void> {
-  //   // console.log("dropPiece() called with colIndex:", colIndex);
-  //   await gameManager!.dropPiece(colIndex);
-  // }
+
+  if (clientBoardAndGameDataQuery.isPending || gamePlayersQuery.isPending) return (<LoadingSpinner />);
+
+  if (clientBoardAndGameDataQuery.error || gamePlayersQuery.error) return (<div>'A TanStack error has occurred ...'</div>);
+
+  const gameData = clientBoardAndGameDataQuery.data.gameData;
 
   const dropPiece = useCallback(async (colIndex: number) => {
-    if (gameManager!.getGameState() === 1) {
-      await gameManager!.dropPiece(colIndex);
+    if (gameData.gameState === 1) {
+      await server.dropPiece(gameId!, gameData.currPlayerId, colIndex);
     } else {
       console.log("dropPiece called while game in started state");
     }
-  },[gameManager])
-
-  if (isLoading) return (<LoadingSpinner />);
+  },[gameData.gameState]);
 
   return (
     <div className="PlayGame">
-      <GameDetailsPropertyList gameData={gameManager!.getGameAndTurns().gameData} />
-      <PlayerList playerList={gameManager!.getPlayers()} action={undefined} actionType={undefined} />
+      <GameDetailsPropertyList gameData={gameData} />
+      <PlayerList playerList={gamePlayersQuery.data} action={undefined} actionType={undefined} />
       <div className="PlayGame-manageButtons">
         <button className="PlayGame-manageButtons-button" onClick={startGame}>
-          {gameManager!.getGameState() === 0 ? 'Start' : 'Restart'}
+          {gameData.gameState === 0 ? 'Start' : 'Restart'}
         </button>
         <button className="PlayGame-manageButtons-button" onClick={deleteGame}>
           Delete
@@ -120,8 +104,8 @@ export function PlayGame() {
         </button>
       </div>
       <GameBoard
-        boardState={gameManager!.getClientBoard()}
-        gamePlayers={gameManager!.getPlayers()}
+        boardState={clientBoardAndGameDataQuery.data.clientBoard}
+        gamePlayers={gamePlayersQuery.data}
         dropPiece={dropPiece}>
       </GameBoard>
     </div>

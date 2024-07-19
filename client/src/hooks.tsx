@@ -133,3 +133,31 @@ export function useDeletePlayerMutation(server: Server) {
         }
     });
 }
+
+/** Calls Server.startGame() with the specified game ID */
+export function useStartGameMutation(server: Server) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (gameId: string) => await server.startGame(gameId),
+        onSuccess: (_data, gameId) => {
+            queryClient.invalidateQueries({ queryKey: ['gameDetails', gameId] });
+            queryClient.invalidateQueries({ queryKey: ['clientBoardAndGameData', gameId] });
+        }
+    });
+}
+
+/** Calls Server.deleteGame() with the specified game ID */
+export function useDeleteGameMutation(server: Server) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (gameId: string) => await server.deleteGame(gameId),
+        onSuccess: (_data, gameId) => {
+            queryClient.invalidateQueries({ queryKey: ['gameList'] });
+            queryClient.invalidateQueries({
+                predicate: (query) => query.queryKey.includes(gameId)
+            });
+        }
+    });
+}
