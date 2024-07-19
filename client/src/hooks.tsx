@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Server, GamePlayer, NewGameDimensions, NewPlayer } from "./server";
+import { GameManagerV2 } from "./gameManagerV2";
 
 /**
  * Queries Server.getPlayers() for the specified game and then compares the results
@@ -47,6 +48,18 @@ export function useGameDetailsQuery(server: Server, gameId: string) {
     });
 }
 
+/** Initializes a GameManagerV2 instance and retrieves initial ClientBoardAndGameData for the specific game */
+export function useClientBoardAndGameData(server: Server, gameId: string) {
+    return useQuery({
+        queryKey: ['clientBoardAndGameData', gameId],
+        queryFn: async () => {
+            const gameManager = new GameManagerV2(server, gameId);
+            const clientBoardAndGameData = gameManager.getInitialClientState();
+            return clientBoardAndGameData;
+        }
+    });
+}
+
 /** Queries Server.getPlayersForGame() for the specified game */
 export function useGamePlayersQuery(server: Server, gameId: string) {
     return useQuery({
@@ -90,7 +103,7 @@ export function useCreateGameMutation(server: Server) {
     return useMutation({
         mutationFn: async (dimensions: NewGameDimensions) => await server.createGame(dimensions),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['gameList']});
+            queryClient.invalidateQueries({ queryKey: ['gameList'] });
         }
     });
 }
@@ -102,7 +115,7 @@ export function useCreatePlayerMutation(server: Server) {
     return useMutation({
         mutationFn: async (player: NewPlayer) => await server.createPlayer(player),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['players']});
+            queryClient.invalidateQueries({ queryKey: ['players'] });
             queryClient.invalidateQueries({ queryKey: ['availableGamePlayers'] });
         }
     });
@@ -115,7 +128,7 @@ export function useDeletePlayerMutation(server: Server) {
     return useMutation({
         mutationFn: async (playerId: string) => await server.deletePlayer(playerId),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['players']});
+            queryClient.invalidateQueries({ queryKey: ['players'] });
             queryClient.invalidateQueries({ queryKey: ['availableGamePlayers'] });
         }
     });
