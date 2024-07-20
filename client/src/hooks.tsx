@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Server, GamePlayer, NewGameDimensions, NewPlayer } from "./server";
 import { GameManagerV2 } from "./gameManagerV2";
 
+const pollFreqInMs = 500;
+
 /**
  * Queries Server.getPlayers() for the specified game and then compares the results
  * against the provided list of game players to determine (and return) a list of
@@ -48,14 +50,29 @@ export function useGameDetailsQuery(server: Server, gameId: string) {
     });
 }
 
-/** Initializes a GameManagerV2 instance and retrieves initial ClientBoardAndGameData for the specific game */
-export function useClientBoardAndGameData(server: Server, gameId: string) {
+/** Retrieves and returns the latest game state via the provided GameManagerV2 instance */
+export function useGamePlayStateQuery(
+    gameManager: GameManagerV2 | null,
+    gameId: string | undefined
+) {
     return useQuery({
-        queryKey: ['clientBoardAndGameData', gameId],
+        queryKey: ['gamePlayState', gameId],
         queryFn: async () => {
-            const gameManager = new GameManagerV2(server, gameId);
-            const clientBoardAndGameData = gameManager.getInitialClientState();
-            return clientBoardAndGameData;
+            const gamePlayState = gameManager?.getGamePlayState();
+            return gamePlayState;
+        },
+        refetchInterval: (query) => {
+            if(query.state.data?.gameData.gameState === 1) {
+                return pollFreqInMs;
+            }
+            return false;
+        },
+        enabled: () => {
+            return (
+                gameManager instanceof GameManagerV2 &&
+                gameId !== undefined &&
+                gameManager.countNewTurnsRemaining() === 0
+            )
         }
     });
 }
@@ -142,7 +159,7 @@ export function useStartGameMutation(server: Server) {
         mutationFn: async (gameId: string) => await server.startGame(gameId),
         onSuccess: (_data, gameId) => {
             queryClient.invalidateQueries({ queryKey: ['gameDetails', gameId] });
-            queryClient.invalidateQueries({ queryKey: ['clientBoardAndGameData', gameId] });
+            queryClient.invalidateQueries({ queryKey: ['gamePlayState', gameId] });
         }
     });
 }

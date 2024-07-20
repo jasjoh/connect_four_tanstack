@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
+import { delay } from "../utils";
 import { Server } from "../server";
 import {
-  useClientBoardAndGameData,
+  useGamePlayStateQuery,
   useGamePlayersQuery,
   useStartGameMutation,
   useDeleteGameMutation
@@ -14,6 +16,9 @@ import { PlayerList } from "./PlayerList";
 import { GameBoard } from "./GameBoardComponents/GameBoard";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { GameDetailsPropertyList } from "./GameDetailsPropertyList";
+import { GameManagerV2 } from "../gameManagerV2";
+
+const animatePlaysDelayInMs = 1000;
 
 /** Main component that handles playing a specific game
  *
@@ -25,8 +30,8 @@ import { GameDetailsPropertyList } from "./GameDetailsPropertyList";
  *
  * State:
  * - isLoading: Whether the component is still loading server data or not
- * - clientBoardAndGameDataQuery.data.gameData The instance of the clientBoardAndGameDataQuery.data.gameDataassociated with the game being played
- * - renderToggle: A helper state for re-rendering when server-state mutates in the clientBoardAndGameDataQuery.data.gameData *
+ * - gamePlayStateQuery.data.gameData The instance of the gamePlayStateQuery.data.gameDataassociated with the game being played
+ * - renderToggle: A helper state for re-rendering when server-state mutates in the gamePlayStateQuery.data.gameData *
  * GameDetails -> (gameId) -> PlayGame
  * /games/{gameId} -> PlayGame
  *
@@ -38,12 +43,32 @@ import { GameDetailsPropertyList } from "./GameDetailsPropertyList";
  */
 export function PlayGame() {
   console.log("PlayGame re-rendered");
-  const [server, setServer] = useState<Server>(Server.getInstance());
-
   const { gameId } = useParams();
   const navigate = useNavigate();
 
-  const clientBoardAndGameDataQuery = useClientBoardAndGameData(server, gameId!);
+  const [server, setServer] = useState<Server>(Server.getInstance());
+  const [gameManager, setGameManager] = useState<GameManagerV2 | null>(null);
+
+  useEffect(function initializeGameManagerEffect(): void {
+    const newGameManager: GameManagerV2 = new GameManagerV2(server, gameId!);
+    setGameManager(newGameManager);
+  }, [gameId]);
+
+  useEffect(function processTurnEffect(): void {
+    async function executeProcessTurnEffect() {
+      if (gameManager && gameManager?.countNewTurnsRemaining() > 0) {
+        const queryClient = useQueryClient();
+        const newGamePlayState = gameManager?.processNewTurn();
+        queryClient.setQueryData(['gamePlayState', gameId], newGamePlayState);
+        queryClient.invalidateQueries({ queryKey: ['gameDetails', gameId] });
+        await delay(animatePlaysDelayInMs);
+      }
+    }
+    executeProcessTurnEffect();
+  }, [gameManager?.countNewTurnsRemaining]);
+
+  // const gamePlayStateQuery = useClientBoardAndGameData(server, gameId!)
+  const gamePlayStateQuery = useGamePlayStateQuery(gameManager, gameId);
   const gamePlayersQuery = useGamePlayersQuery(server, gameId!);
 
   const startGameMutation = useStartGameMutation(server);
@@ -51,14 +76,14 @@ export function PlayGame() {
 
   /** Called when a user clicks on the start or re-start button
    * Calls the startGameMutation mutate function  */
-  async function startGame() : Promise<void> {
+  async function startGame(): Promise<void> {
     // console.log("startGame() called");
     await startGameMutation.mutateAsync(gameId!);
   }
 
   /** Called when a user clicks the button to delete the current game
    * Calls the deleteGameMutation mutate function and navigates to root */
-  async function deleteGame() : Promise<void> {
+  async function deleteGame(): Promise<void> {
     console.log("deleteGame() called");
     await deleteGameMutation.mutateAsync(gameId!);
     console.log("deleteGameMutation finished.");
@@ -68,25 +93,25 @@ export function PlayGame() {
 
   /** Called when a user clicks the button to manage the players in a game
    * Navigates the user to the GameDetails for the game */
-  async function managePlayers() : Promise<void>{
+  async function managePlayers(): Promise<void> {
     // console.log("managePlayers() called");
     navigate(`/games/${gameId}`);
   }
 
-
-  if (clientBoardAndGameDataQuery.isPending || gamePlayersQuery.isPending) return (<LoadingSpinner />);
-
-  if (clientBoardAndGameDataQuery.error || gamePlayersQuery.error) return (<div>'A TanStack error has occurred ...'</div>);
-
-  const gameData = clientBoardAndGameDataQuery.data.gameData;
-
   const dropPiece = useCallback(async (colIndex: number) => {
+    const gameData = gamePlayStateQuery.data!.gameData;
     if (gameData.gameState === 1) {
       await server.dropPiece(gameId!, gameData.currPlayerId, colIndex);
     } else {
       console.log("dropPiece called while game in started state");
     }
-  },[gameData.gameState]);
+  }, [gamePlayStateQuery.data?.gameData.gameState]);
+
+  if (gamePlayStateQuery.isPending || gamePlayersQuery.isPending) return (<LoadingSpinner />);
+
+  if (gamePlayStateQuery.error || gamePlayersQuery.error) return (<div>'A TanStack error has occurred ...'</div>);
+
+  const gameData = gamePlayStateQuery.data.gameData;
 
   return (
     <div className="PlayGame">
@@ -104,7 +129,7 @@ export function PlayGame() {
         </button>
       </div>
       <GameBoard
-        boardState={clientBoardAndGameDataQuery.data.clientBoard}
+        boardState={gamePlayStateQuery.data.clientBoard}
         gamePlayers={gamePlayersQuery.data}
         dropPiece={dropPiece}>
       </GameBoard>
