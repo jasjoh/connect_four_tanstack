@@ -2,7 +2,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Server, GamePlayer, NewGameDimensions, NewPlayer } from "./server";
 import { GameManagerV2 } from "./gameManagerV2";
 
-const pollFreqInMs = 500;
+const getClientStatePollFreqInMs = 500;
+const updateClientStatePollFreqInMs = 500;
 
 /**
  * Queries Server.getPlayers() for the specified game and then compares the results
@@ -51,28 +52,27 @@ export function useGameDetailsQuery(server: Server, gameId: string) {
 }
 
 /** Retrieves and returns the latest game state via the provided GameManagerV2 instance */
-export function useGamePlayStateQuery(
+export function useGetGameClientStateQuery(
     gameManager: GameManagerV2 | null,
-    gameId: string | undefined
+    gameId: string
 ) {
     return useQuery({
-        queryKey: ['gamePlayState', gameId],
+        queryKey: ['getGameClientState', gameId],
         queryFn: async () => {
-            const gamePlayState = gameManager?.getGamePlayState();
-            return gamePlayState;
+            const gameManager = GameManagerV2.getInstance(gameId);
+            const gameClientState = gameManager.getClientState();
+            return gameClientState;
         },
-        refetchInterval: (query) => {
-            if(query.state.data?.gameData.gameState === 1) {
-                return pollFreqInMs;
-            }
-            return false;
-        },
+        refetchInterval: getClientStatePollFreqInMs,
         enabled: () => {
+            const bool1 = gameManager instanceof GameManagerV2;
+            const bool2 = gameId !== undefined;
+            const bool3 = gameManager?.queryServerAllowed;
             return (
                 gameManager instanceof GameManagerV2 &&
                 gameId !== undefined &&
-                gameManager.countNewTurnsRemaining() === 0
-            )
+                gameManager.queryServerAllowed
+            );
         }
     });
 }
@@ -152,14 +152,16 @@ export function useDeletePlayerMutation(server: Server) {
 }
 
 /** Calls Server.startGame() with the specified game ID */
-export function useStartGameMutation(server: Server) {
+export function useStartGameMutation(gameManager: GameManagerV2) {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (gameId: string) => await server.startGame(gameId),
+        mutationFn: async (gameId: string) => {
+            await gameManager.startGame();
+        },
         onSuccess: (_data, gameId) => {
             queryClient.invalidateQueries({ queryKey: ['gameDetails', gameId] });
-            queryClient.invalidateQueries({ queryKey: ['gamePlayState', gameId] });
+            queryClient.invalidateQueries({ queryKey: ['getGameClientState', gameId] });
         }
     });
 }

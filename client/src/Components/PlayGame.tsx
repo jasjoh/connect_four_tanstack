@@ -6,7 +6,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { delay } from "../utils";
 import { Server } from "../server";
 import {
-  useGamePlayStateQuery,
+  useGetGameClientStateQuery,
+  useUpdateGameClientStateQuery,
   useGamePlayersQuery,
   useStartGameMutation,
   useDeleteGameMutation
@@ -29,9 +30,9 @@ const animatePlaysDelayInMs = 1000;
  * - gameId: The game ID to play
  *
  * State:
- * - isLoading: Whether the component is still loading server data or not
- * - gamePlayStateQuery.data.gameData The instance of the gamePlayStateQuery.data.gameDataassociated with the game being played
- * - renderToggle: A helper state for re-rendering when server-state mutates in the gamePlayStateQuery.data.gameData *
+ * - server: A reference to the Server singleton
+ * - gameManager: The instance of the gameManager associated with the game being played
+ *
  * GameDetails -> (gameId) -> PlayGame
  * /games/{gameId} -> PlayGame
  *
@@ -45,33 +46,31 @@ export function PlayGame() {
   console.log("PlayGame re-rendered");
   const { gameId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [server, setServer] = useState<Server>(Server.getInstance());
-  const [gameManager, setGameManager] = useState<GameManagerV2 | null>(null);
+  const [gameManager, setGameManager] = useState<GameManagerV2>(GameManagerV2.getInstance(gameId!));
 
-  useEffect(function initializeGameManagerEffect(): void {
-    const newGameManager: GameManagerV2 = new GameManagerV2(server, gameId!);
-    setGameManager(newGameManager);
-  }, [gameId]);
+  // useEffect(function processTurnEffect(): void {
+  //   async function executeProcessTurnEffect() {
+  //     console.log('processTurnEffect called');
+  //     if (gameManager && gameManager?.countNewTurnsRemaining() > 0) {
+  //       const queryClient = useQueryClient();
+  //       const newGamePlayState = gameManager?.processNewTurn();
+  //       queryClient.setQueryData(['gamePlayState', gameId!], newGamePlayState);
+  //       queryClient.invalidateQueries({ queryKey: ['gameDetails', gameId!] });
+  //       await delay(animatePlaysDelayInMs);
+  //     }
+  //   }
+  //   executeProcessTurnEffect();
+  // }, [gameManager?.countNewTurnsRemaining]);
 
-  useEffect(function processTurnEffect(): void {
-    async function executeProcessTurnEffect() {
-      if (gameManager && gameManager?.countNewTurnsRemaining() > 0) {
-        const queryClient = useQueryClient();
-        const newGamePlayState = gameManager?.processNewTurn();
-        queryClient.setQueryData(['gamePlayState', gameId], newGamePlayState);
-        queryClient.invalidateQueries({ queryKey: ['gameDetails', gameId] });
-        await delay(animatePlaysDelayInMs);
-      }
-    }
-    executeProcessTurnEffect();
-  }, [gameManager?.countNewTurnsRemaining]);
-
-  // const gamePlayStateQuery = useClientBoardAndGameData(server, gameId!)
-  const gamePlayStateQuery = useGamePlayStateQuery(gameManager, gameId);
+  // const getGameClientStateQuery = useClientBoardAndGameData(server, gameId!)
+  const getGameClientStateQuery = useGetGameClientStateQuery(gameManager, gameId!);
+  // useUpdateGameClientStateQuery(gameManager, gameId!);
   const gamePlayersQuery = useGamePlayersQuery(server, gameId!);
 
-  const startGameMutation = useStartGameMutation(server);
+  const startGameMutation = useStartGameMutation(gameManager);
   const deleteGameMutation = useDeleteGameMutation(server);
 
   /** Called when a user clicks on the start or re-start button
@@ -98,20 +97,19 @@ export function PlayGame() {
     navigate(`/games/${gameId}`);
   }
 
+  /** Callback function called when a user clicks in a dropCell to drop
+   * a game piece in a specific column.
+   */
   const dropPiece = useCallback(async (colIndex: number) => {
-    const gameData = gamePlayStateQuery.data!.gameData;
-    if (gameData.gameState === 1) {
-      await server.dropPiece(gameId!, gameData.currPlayerId, colIndex);
-    } else {
-      console.log("dropPiece called while game in started state");
-    }
-  }, [gamePlayStateQuery.data?.gameData.gameState]);
+    await gameManager.dropPiece(colIndex);
+    queryClient.invalidateQueries({ queryKey: ['getGameClientState', gameId] });
+  }, []);
 
-  if (gamePlayStateQuery.isPending || gamePlayersQuery.isPending) return (<LoadingSpinner />);
+  if (getGameClientStateQuery.isPending || gamePlayersQuery.isPending) return (<LoadingSpinner />);
 
-  if (gamePlayStateQuery.error || gamePlayersQuery.error) return (<div>'A TanStack error has occurred ...'</div>);
+  if (getGameClientStateQuery.error || gamePlayersQuery.error) return (<div>'A TanStack error has occurred ...'</div>);
 
-  const gameData = gamePlayStateQuery.data.gameData;
+  const gameData = getGameClientStateQuery.data.game.gameData;
 
   return (
     <div className="PlayGame">
@@ -129,7 +127,7 @@ export function PlayGame() {
         </button>
       </div>
       <GameBoard
-        boardState={gamePlayStateQuery.data.clientBoard}
+        boardState={getGameClientStateQuery.data.clientBoard}
         gamePlayers={gamePlayersQuery.data}
         dropPiece={dropPiece}>
       </GameBoard>
