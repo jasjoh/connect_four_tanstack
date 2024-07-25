@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { delay } from "../utils";
+import { delay, delayWithHandle } from "../utils";
 
 import "./LoadingSpinner.css"
 
@@ -25,17 +25,20 @@ export function LoadingSpinner() : JSX.Element {
 
   const [extendedLoading, setExtendedLoading] = useState(false);
 
-  useEffect(function startExtendedLoadingTimerOnMount() : void {
+  useEffect(function startExtendedLoadingTimerOnMount() {
+    const delayResult = delayWithHandle(5000);
     async function startExtendedLoadingTimer() : Promise<void> {
       // console.log("startExtendedLoadingTimerOnMount() called thus component is being re-mounted");
-      await delay(5000);
+      await delayResult.promise;
+      console.log("delay() result after awaiting:", delayResult)
       console.log("delay occurred; setting extended true");
       setExtendedLoading(true);
     }
     startExtendedLoadingTimer();
+    return () => {
+      if (delayResult.timeout !== null) { clearTimeout(delayResult.timeout) }
+    }
   }, [])
-
-  console.log("rendering; extendedLoading:", extendedLoading);
 
   return (
     <div className="LoadingSpinner">

@@ -109,7 +109,7 @@ export function PlayGame() {
 
   if (getGameClientStateQuery.error || gamePlayersQuery.error) return (<div>'A TanStack error has occurred ...'</div>);
 
-  const gameData = getGameClientStateQuery.data.game.gameData;
+  const gameData = getGameClientStateQuery.data.game;
 
   return (
     <div className="PlayGame">

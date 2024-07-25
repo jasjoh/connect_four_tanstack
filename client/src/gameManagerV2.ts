@@ -9,7 +9,7 @@ export interface ClientBoardCell {
 export type ClientBoard = ClientBoardCell[][];
 
 export interface ClientState {
-  game: C4Server.GameAndTurns;
+  game: C4Server.GameData;
   clientBoard: ClientBoard;
   newTurnCount: number;
 }
@@ -78,18 +78,32 @@ export class GameManagerV2 implements GameManagerV2Interface {
     if (this.clientBoard === null) {
       // game data has not been initialized
       this.game = await this.server.getGame(this.gameId);
-      this.clientBoard = this._initializeClientBoardF(this.game.gameData.boardData);
-      this._initializeClientTurnData();
-      this._generateNewClientState();
+
+      this.clientBoard = this._initializeClientBoard_F_P(this.game.gameData!.boardData!);
+
+      const clientTurnData = this._initializeClientTurnData_F_P(this.game.gameTurns);
+      this.clientTurns = clientTurnData.clientTurns;
+      this.clientTurnIdsSet = clientTurnData.clientTurnIdsSet;
+
+      this.clientState = this._generateNewClientState_F_P(
+        this.game.gameData,
+        this.clientBoard,
+        this.newTurns.length
+      );
+
       this._enablePolling();
-      this._processGameState();
+      this._processGameState_F();
     }
 
     else if (this.newTurns.length > 0) {
       // game is initialized and there are new turns to process
-      this._processNewTurn();
-      if (this.newTurns.length === 0) { this._processGameState(); }
-      this._generateNewClientState();
+      this._processNewTurn_F();
+      if (this.newTurns.length === 0) { this._processGameState_F(); }
+      this.clientState = this._generateNewClientState_F_P(
+        this.game!.gameData!,
+        this.clientBoard,
+        this.newTurns.length
+      );
     }
 
     return this.clientState!;
@@ -108,7 +122,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
   async startGame(): Promise<void> {
     this.queryServerAllowed = false;
     await this.server.startGame(this.gameId);
-    this._clearState();
+    this._clearState_F();
     this.queryServerAllowed = true;
     this._enablePolling();
   }
@@ -132,26 +146,31 @@ export class GameManagerV2 implements GameManagerV2Interface {
   private async _updateClientState() : Promise<void> {
     if (this.newTurns.length > 0 || this.clientBoard === null ) { return }
     this.game = await this.server.getGame(this.gameId);
-    this._setNewTurns();
+    this.newTurns = this._getNewTurns_F_P(this.game.gameTurns, this.clientTurnIdsSet);
   }
 
-  /** Generates a new client state */
-  private _generateNewClientState() : void {
-    this.clientState = {
-      game: this.game!,
-      clientBoard: this.clientBoard!,
-      newTurnCount: this.newTurns.length
+  /** Generates a new ClientState based on provided properties */
+  private _generateNewClientState_F_P(
+    game: C4Server.GameData,
+    clientBoard: ClientBoard,
+    newTurnCount: number
+  ) : ClientState {
+    const clientState : ClientState = {
+      game: game,
+      clientBoard: clientBoard,
+      newTurnCount: newTurnCount
     }
+    return clientState;
   }
 
   /** Process a new turn (add it to the board) */
-  private _processNewTurn(): void {
+  private _processNewTurn_F(): void {
     if (this.clientBoard === null) { throw new Error("clientBoard has not been set.")}
     const turnToProcess = this.newTurns[0];
-    this.clientTurns = this._addTurnToTurnArrayF(turnToProcess, this.clientTurns);
-    this.clientTurnIdsSet = this._addTurnToTurnIdSetF(turnToProcess, this.clientTurnIdsSet);
-    this.clientBoard = this._addTurnToClientBoardF(turnToProcess, this.clientBoard);
-    this._processGameState();
+    this.clientTurns = this._addTurnToTurnArray_F_P(turnToProcess, this.clientTurns);
+    this.clientTurnIdsSet = this._addTurnToTurnIdSet_F_P(turnToProcess, this.clientTurnIdsSet);
+    this.clientBoard = this._addTurnToClientBoard_F_P(turnToProcess, this.clientBoard);
+    this._processGameState_F();
     this.newTurns = this.newTurns.slice(1);
   }
 
@@ -160,7 +179,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
    * Creates a new GameTurn[], adding the GameTurn to the end.
    * Returns new GameTurn[]
    */
-  private _addTurnToTurnArrayF(
+  private _addTurnToTurnArray_F_P(
     turn: C4Server.GameTurn,
     turnArray: C4Server.GameTurn[]
   ) : C4Server.GameTurn[] {
@@ -173,7 +192,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
    * the input set in addition to the GameTurn ID from the input GameTurn
    * Returns a new Set<string> of Game Turn IDs
    */
-  private _addTurnToTurnIdSetF(
+  private _addTurnToTurnIdSet_F_P(
     turn: C4Server.GameTurn,
     turnIdSet: Set<number>
   ) : Set<number> {
@@ -188,7 +207,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
    * Creates a new ClientBoard updated with the action implied by the GameTurn
    * Returns the new ClientBoard
    */
-  private _addTurnToClientBoardF(
+  private _addTurnToClientBoard_F_P(
     turn: C4Server.GameTurn,
     clientBoard: ClientBoard
   ) : ClientBoard {
@@ -201,7 +220,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
    * board coordinates which should be highlighted.
    * Creates and returns a new ClientBoard with those cells highlighted.
    */
-  private _highlightWinningTurnSetF(
+  private _highlightWinningTurnSet_F_P(
     clientBoard: ClientBoard,
     winningSet: number[][]
   ) : ClientBoard {
@@ -212,14 +231,15 @@ export class GameManagerV2 implements GameManagerV2Interface {
     return board;
   }
 
-  /** Internal function for GameManagerV2
-   * Checks for and handles games which have finished */
-  private _processGameState() : void {
+  /**
+   * Inspects the current gameState and takes actions based on that state.
+   */
+  private _processGameState_F() : void {
     if (this.game?.gameData?.gameState !== 1) {
       this._disablePolling();
     }
     if (this.game?.gameData?.gameState === 2) {
-      this.clientBoard = this._highlightWinningTurnSetF(
+      this.clientBoard = this._highlightWinningTurnSet_F_P(
         this.clientBoard!, this.game!.gameData!.winningSet!
       )
       this.queryServerAllowed = false;
@@ -227,17 +247,18 @@ export class GameManagerV2 implements GameManagerV2Interface {
   }
 
   /** Clears game state (e.g. when a game is restarted) */
-  private _clearState(): void {
+  private _clearState_F(): void {
     this.clientBoard = null;
     this.clientTurnIdsSet = new Set();
     this.clientTurns = [];
     this.newTurns = [];
   }
 
-  /** Internal function for GameManagerV2 - PURE Function
-   * Accepts a BoardCell[][] and generates and returns a new ClientBoard
+  /**
+   * Accepts a BoardCell[][] associated with a game.
+   * Generates and returns a new ClientBoard represent that board state.
   */
-  private _initializeClientBoardF(boardData: C4Server.BoardCell[][]): ClientBoard {
+  private _initializeClientBoard_F_P(boardData: C4Server.BoardCell[][]): ClientBoard {
     const board = [];
     for (let row of boardData) {
       const clientRow = [];
@@ -253,28 +274,34 @@ export class GameManagerV2 implements GameManagerV2Interface {
     return board;
   }
 
-  /** Initializes clientTurns and clientTurnIdsSet based on game data */
-  private _initializeClientTurnData() : void {
-    this.clientTurns = this.game!.gameTurns;
-    this.clientTurns.forEach(t => this.clientTurnIdsSet.add(t.turnId));
-  }
-
-  /** Internal function for GameManagerV2
-   * Compares turns from the current game state against prior list of turns.
-   * Returns any newly detected turns as GameTurn[]
+  /** Accepts GameTurn[] to initialize client turn data
+   * Returns initialized turn data as a new object
    */
-  private _setNewTurns(): void {
-    this.newTurns = this.game!.gameTurns.filter(turn => !this.clientTurnIdsSet!.has(turn.turnId));
+  private _initializeClientTurnData_F_P(
+    gameTurns: C4Server.GameTurn[]
+  ) : { clientTurns: C4Server.GameTurn[]; clientTurnIdsSet: Set<number> } {
+    const clientTurns = gameTurns;
+    const clientTurnIdsSet : Set<number> = new Set();
+    clientTurns.forEach(t => clientTurnIdsSet.add(t.turnId));
+    return {
+      clientTurns: clientTurns,
+      clientTurnIdsSet: clientTurnIdsSet
+    }
   }
 
-  /** Internal function for GameManagerV2
-   * Updates this.gamePlayState with the provided GameTurn data:
-   **/
-  private _updateBoardWithTurn(turn: C4Server.GameTurn): void {
-    this.clientBoard![turn.location[0]][turn.location[1]].playerId = turn.playerId;
+  /**
+   * Accepts a GameTurns[] representing updated game state and a Set<string>
+   * representing the current instance's client turn ID set. Returns a new GameTurns[]
+   * representing the list of game turns determined not to be in the existing client set.
+   */
+  private _getNewTurns_F_P(
+    gameTurns: C4Server.GameTurn[],
+    clientTurnIdsSet: Set<number>
+  ): C4Server.GameTurn[] {
+    return gameTurns.filter(turn => clientTurnIdsSet.has(turn.turnId));
   }
 
-  /** Internal function for GameMAnager
+  /**
    * Polling function which calls this.updateTurns() and then
    * awaits updateTurnsDelayInMs to transpire before calling again.
    */
