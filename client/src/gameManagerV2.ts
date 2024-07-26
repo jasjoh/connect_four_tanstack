@@ -1,3 +1,8 @@
+/** In exploring functional programming, certain functions in this
+ * class have be appended with _F or _P to denote they were refactored
+ * to apply functional programming patterns (_F) and made pure if possible (_P)
+ */
+
 import { delay } from "./utils";
 import * as C4Server from "./server";
 
@@ -33,7 +38,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
   private clientState: ClientState | null;
   private clientTurns: C4Server.GameTurn[];
   private clientTurnIdsSet: Set<number>;
-    // TODO: newTurns should be a queue rather than a simple array.
+  // TODO: newTurns should be a queue rather than a simple array.
   private newTurns: C4Server.GameTurn[];
   private pollForTurns: boolean;
   private isPolling: boolean;
@@ -56,7 +61,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
     this.clientState = null;
   }
 
-  static getInstance(gameId: string) : GameManagerV2 {
+  static getInstance(gameId: string): GameManagerV2 {
     if (!this.instances.has(gameId)) {
       this.instances.set(gameId, new GameManagerV2(gameId));
     }
@@ -70,9 +75,9 @@ export class GameManagerV2 implements GameManagerV2Interface {
    * If local state exists and no new turns exist, simply returns local state
    * If querying is not permitted (e.g. in the middle of starting a game), throws error
    */
-  async getClientState() : Promise<ClientState> {
+  async getClientState(): Promise<ClientState> {
     if (!this.queryServerAllowed) {
-      throw new Error("GameManager is not in valid state to be queried or updated.")
+      throw new Error("GameManager is not in valid state to be queried or updated.");
     }
 
     if (this.clientBoard === null) {
@@ -85,14 +90,15 @@ export class GameManagerV2 implements GameManagerV2Interface {
       this.clientTurns = clientTurnData.clientTurns;
       this.clientTurnIdsSet = clientTurnData.clientTurnIdsSet;
 
+      this._enablePolling();
+
+      this._processGameState_F();
+
       this.clientState = this._generateNewClientState_F_P(
         this.game.gameData,
         this.clientBoard,
         this.newTurns.length
       );
-
-      this._enablePolling();
-      this._processGameState_F();
     }
 
     else if (this.newTurns.length > 0) {
@@ -110,8 +116,8 @@ export class GameManagerV2 implements GameManagerV2Interface {
   }
 
   /** Drops a piece at the specified location for the current player */
-  async dropPiece(column: number) : Promise<void> {
-    if (this.game?.gameData.gameState !== 1) { return }
+  async dropPiece(column: number): Promise<void> {
+    if (this.game?.gameData.gameState !== 1) { return; }
     await this.server.dropPiece(this.gameId, this.game!.gameData.currPlayerId!, column);
     await this._updateClientState();
   }
@@ -120,6 +126,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
    * Starts the game associated with this GameManagerV2
    * Once promise is fulfilled successfully, call getGamePlayState() */
   async startGame(): Promise<void> {
+    this._disablePolling();
     this.queryServerAllowed = false;
     await this.server.startGame(this.gameId);
     this._clearState_F();
@@ -143,8 +150,8 @@ export class GameManagerV2 implements GameManagerV2Interface {
    * If new turns already exist or if the game has not been initialized, does nothing.
    *
    */
-  private async _updateClientState() : Promise<void> {
-    if (this.newTurns.length > 0 || this.clientBoard === null ) { return }
+  private async _updateClientState(): Promise<void> {
+    if (this.newTurns.length > 0 || this.clientBoard === null) { return; }
     this.game = await this.server.getGame(this.gameId);
     this.newTurns = this._getNewTurns_F_P(this.game.gameTurns, this.clientTurnIdsSet);
   }
@@ -154,18 +161,18 @@ export class GameManagerV2 implements GameManagerV2Interface {
     game: C4Server.GameData,
     clientBoard: ClientBoard,
     newTurnCount: number
-  ) : ClientState {
-    const clientState : ClientState = {
+  ): ClientState {
+    const clientState: ClientState = {
       game: game,
       clientBoard: clientBoard,
       newTurnCount: newTurnCount
-    }
+    };
     return clientState;
   }
 
   /** Process a new turn (add it to the board) */
   private _processNewTurn_F(): void {
-    if (this.clientBoard === null) { throw new Error("clientBoard has not been set.")}
+    if (this.clientBoard === null) { throw new Error("clientBoard has not been set."); }
     const turnToProcess = this.newTurns[0];
     this.clientTurns = this._addTurnToTurnArray_F_P(turnToProcess, this.clientTurns);
     this.clientTurnIdsSet = this._addTurnToTurnIdSet_F_P(turnToProcess, this.clientTurnIdsSet);
@@ -182,8 +189,8 @@ export class GameManagerV2 implements GameManagerV2Interface {
   private _addTurnToTurnArray_F_P(
     turn: C4Server.GameTurn,
     turnArray: C4Server.GameTurn[]
-  ) : C4Server.GameTurn[] {
-    return turnArray.concat(turnArray, [turn])
+  ): C4Server.GameTurn[] {
+    return turnArray.concat(turnArray, [turn]);
   }
 
   /**
@@ -195,8 +202,8 @@ export class GameManagerV2 implements GameManagerV2Interface {
   private _addTurnToTurnIdSet_F_P(
     turn: C4Server.GameTurn,
     turnIdSet: Set<number>
-  ) : Set<number> {
-    const returnSet : Set<number> = new Set();
+  ): Set<number> {
+    const returnSet: Set<number> = new Set();
     turnIdSet.forEach(turnId => returnSet.add(turnId));
     returnSet.add(turn.turnId);
     return returnSet;
@@ -210,8 +217,8 @@ export class GameManagerV2 implements GameManagerV2Interface {
   private _addTurnToClientBoard_F_P(
     turn: C4Server.GameTurn,
     clientBoard: ClientBoard
-  ) : ClientBoard {
-    const board = clientBoard.map(row => row.map(cell => ({...cell})));
+  ): ClientBoard {
+    const board = clientBoard.map(row => row.map(cell => ({ ...cell })));
     board[turn.location[0]][turn.location[1]].playerId = turn.playerId;
     return board;
   }
@@ -223,8 +230,8 @@ export class GameManagerV2 implements GameManagerV2Interface {
   private _highlightWinningTurnSet_F_P(
     clientBoard: ClientBoard,
     winningSet: number[][]
-  ) : ClientBoard {
-    let board : ClientBoard = clientBoard.map(row => row.map(cell => ({...cell})));
+  ): ClientBoard {
+    let board: ClientBoard = clientBoard.map(row => row.map(cell => ({ ...cell })));
     for (let cell of winningSet) {
       board[cell[0]][cell[1]].highlight = true;
     }
@@ -234,21 +241,23 @@ export class GameManagerV2 implements GameManagerV2Interface {
   /**
    * Inspects the current gameState and takes actions based on that state.
    */
-  private _processGameState_F() : void {
+  private _processGameState_F(): void {
     if (this.game?.gameData?.gameState !== 1) {
       this._disablePolling();
     }
     if (this.game?.gameData?.gameState === 2) {
       this.clientBoard = this._highlightWinningTurnSet_F_P(
         this.clientBoard!, this.game!.gameData!.winningSet!
-      )
+      );
       this.queryServerAllowed = false;
     }
   }
 
   /** Clears game state (e.g. when a game is restarted) */
   private _clearState_F(): void {
+    this.game = null;
     this.clientBoard = null;
+    this.clientState = null;
     this.clientTurnIdsSet = new Set();
     this.clientTurns = [];
     this.newTurns = [];
@@ -279,14 +288,14 @@ export class GameManagerV2 implements GameManagerV2Interface {
    */
   private _initializeClientTurnData_F_P(
     gameTurns: C4Server.GameTurn[]
-  ) : { clientTurns: C4Server.GameTurn[]; clientTurnIdsSet: Set<number> } {
+  ): { clientTurns: C4Server.GameTurn[]; clientTurnIdsSet: Set<number>; } {
     const clientTurns = gameTurns;
-    const clientTurnIdsSet : Set<number> = new Set();
+    const clientTurnIdsSet: Set<number> = new Set();
     clientTurns.forEach(t => clientTurnIdsSet.add(t.turnId));
     return {
       clientTurns: clientTurns,
       clientTurnIdsSet: clientTurnIdsSet
-    }
+    };
   }
 
   /**
@@ -305,7 +314,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
    * Polling function which calls this.updateTurns() and then
    * awaits updateTurnsDelayInMs to transpire before calling again.
    */
-  private async _poll() : Promise<void> {
+  private async _poll(): Promise<void> {
     while (this.pollForTurns) {
       await this._updateClientState();
       await delay(this.pollingFrequencyInMs);
@@ -313,7 +322,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
   }
 
   /** Enables polling and initiates polling (via this._poll()) */
-  private _enablePolling(frequency: number = 5000) : void {
+  private _enablePolling(frequency: number = 5000): void {
     this.pollingFrequencyInMs = frequency;
     this.pollForTurns = true;
     if (!this.isPolling) {
@@ -323,7 +332,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
   }
 
   /** Disables polling such that on next poll, polling will cease. */
-  private _disablePolling() : void {
+  private _disablePolling(): void {
     this.isPolling = false;
     this.pollForTurns = false;
   }
