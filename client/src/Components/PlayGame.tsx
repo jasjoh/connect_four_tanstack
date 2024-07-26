@@ -1,13 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { delay } from "../utils";
 import { Server } from "../server";
 import {
   useGetGameClientStateQuery,
-  useUpdateGameClientStateQuery,
   useGamePlayersQuery,
   useStartGameMutation,
   useDeleteGameMutation
@@ -18,8 +16,6 @@ import { GameBoard } from "./GameBoardComponents/GameBoard";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { GameDetailsPropertyList } from "./GameDetailsPropertyList";
 import { GameManagerV2 } from "../gameManagerV2";
-
-const animatePlaysDelayInMs = 1000;
 
 /** Main component that handles playing a specific game
  *
@@ -51,23 +47,7 @@ export function PlayGame() {
   const [server, setServer] = useState<Server>(Server.getInstance());
   const [gameManager, setGameManager] = useState<GameManagerV2>(GameManagerV2.getInstance(gameId!));
 
-  // useEffect(function processTurnEffect(): void {
-  //   async function executeProcessTurnEffect() {
-  //     console.log('processTurnEffect called');
-  //     if (gameManager && gameManager?.countNewTurnsRemaining() > 0) {
-  //       const queryClient = useQueryClient();
-  //       const newGamePlayState = gameManager?.processNewTurn();
-  //       queryClient.setQueryData(['gamePlayState', gameId!], newGamePlayState);
-  //       queryClient.invalidateQueries({ queryKey: ['gameDetails', gameId!] });
-  //       await delay(animatePlaysDelayInMs);
-  //     }
-  //   }
-  //   executeProcessTurnEffect();
-  // }, [gameManager?.countNewTurnsRemaining]);
-
-  // const getGameClientStateQuery = useClientBoardAndGameData(server, gameId!)
   const getGameClientStateQuery = useGetGameClientStateQuery(gameManager, gameId!);
-  // useUpdateGameClientStateQuery(gameManager, gameId!);
   const gamePlayersQuery = useGamePlayersQuery(server, gameId!);
 
   const startGameMutation = useStartGameMutation(gameManager);
@@ -107,7 +87,14 @@ export function PlayGame() {
 
   if (getGameClientStateQuery.isPending || gamePlayersQuery.isPending) return (<LoadingSpinner />);
 
-  if (getGameClientStateQuery.error || gamePlayersQuery.error) return (<div>'A TanStack error has occurred ...'</div>);
+  if (getGameClientStateQuery.error || gamePlayersQuery.error) {
+    return (
+      <div>
+        <div>getGameClientStateQuery Error Message: {getGameClientStateQuery.error?.message}</div>
+        <div>getGameClientStateQuery Error Stack Trace : {getGameClientStateQuery.error?.stack}</div>
+      </div>
+    );
+  }
 
   const gameData = getGameClientStateQuery.data.game;
 

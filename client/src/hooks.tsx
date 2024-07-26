@@ -3,7 +3,6 @@ import { Server, GamePlayer, NewGameDimensions, NewPlayer } from "./server";
 import { GameManagerV2 } from "./gameManagerV2";
 
 const getClientStatePollFreqInMs = 500;
-const updateClientStatePollFreqInMs = 500;
 
 /**
  * Queries Server.getPlayers() for the specified game and then compares the results
@@ -60,7 +59,7 @@ export function useGetGameClientStateQuery(
         queryKey: ['getGameClientState', gameId],
         queryFn: async () => {
             const gameManager = GameManagerV2.getInstance(gameId);
-            const gameClientState = gameManager.getClientState();
+            const gameClientState = await gameManager.getClientState();
             return gameClientState;
         },
         refetchInterval: getClientStatePollFreqInMs,

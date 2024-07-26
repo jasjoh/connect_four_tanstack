@@ -183,7 +183,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
     turn: C4Server.GameTurn,
     turnArray: C4Server.GameTurn[]
   ) : C4Server.GameTurn[] {
-    return turnArray.concat(turnArray, turn)
+    return turnArray.concat(turnArray, [turn])
   }
 
   /**
@@ -198,7 +198,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
   ) : Set<number> {
     const returnSet : Set<number> = new Set();
     turnIdSet.forEach(turnId => returnSet.add(turnId));
-    turnIdSet.add(turn.turnId);
+    returnSet.add(turn.turnId);
     return returnSet;
   }
 
@@ -298,7 +298,7 @@ export class GameManagerV2 implements GameManagerV2Interface {
     gameTurns: C4Server.GameTurn[],
     clientTurnIdsSet: Set<number>
   ): C4Server.GameTurn[] {
-    return gameTurns.filter(turn => clientTurnIdsSet.has(turn.turnId));
+    return gameTurns.filter(turn => !clientTurnIdsSet.has(turn.turnId));
   }
 
   /**
