@@ -3,7 +3,7 @@ import {
   TooFewPlayers, PlayerAlreadyExists,
   InvalidGameState, InvalidPiecePlacement, NotCurrentPlayer
 } from "../utilities/gameErrors";
-import { SQLQueries } from "../utilities/sqlQueries";
+import { SQLQueries } from "../utilities/sql";
 import { CountResultInterface } from "../utilities/commonInterfaces";
 import { fisherSort } from "../utilities/utils";
 

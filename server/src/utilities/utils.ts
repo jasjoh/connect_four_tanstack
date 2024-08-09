@@ -33,3 +33,39 @@ export function generateRandomName(length : number = 6) : string {
   }
   return name;
 }
+
+/**
+ * Accepts a string representing a valid camelCase variable name
+ * Converts that string into a snake_case string.
+ * Assumption: String will not be empty. Valid camelCase start with lowercase.
+ * Supports: Strings that are all lower case (simply returns them as is).
+ * Examples:
+ * -- 'awesomeSauce' => 'awesome_sauce'
+ * -- 'aManAPlan' => 'a_man_a_plan'
+ * -- 'happy' => 'happy'
+ */
+export function camelToSnake(camelCaseString: string) {
+  if (camelCaseString[0].toUpperCase() === camelCaseString[0]) {
+    // we don't support strings starting with capital letters
+    return camelCaseString;
+  }
+  let foundCap = false;
+  let invalid = false;
+  const arrayOfChars = camelCaseString.split("");
+  const snakeCaseArray = arrayOfChars.map(char => {
+    if (char.toUpperCase() === char) {
+      // char is capitalized
+      if (foundCap) {
+        // prior char was also capitalized so invalid input
+        invalid = true;
+      }
+      foundCap = true; // track we found a cap
+      return `_${char.toLowerCase()}`;
+    } else {
+      foundCap = false; // track this wasn't a cap
+      return char;
+    }
+  });
+  if (invalid) return camelCaseString;
+  return snakeCaseArray.join("");
+}

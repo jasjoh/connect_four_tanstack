@@ -1,7 +1,18 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  username VARCHAR(25) UNIQUE,
+  password TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE
+    CHECK (position('@') IN email) > 1),
+  is_admin BOOLEAN NOT NULL DEFAULT FALSE
+);
+
 CREATE TABLE players (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  owner_id UUID NOT NULL
+    REFERENCES users ON DELETE CASCADE,
   ai BOOLEAN DEFAULT FALSE NOT NULL,
   name TEXT NOT NULL,
   color TEXT NOT NULL,
@@ -18,6 +29,8 @@ CREATE TABLE boards (
 
 CREATE TABLE games (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  owner_id UUID NOT NULL
+    REFERENCES users ON DELETE CASCADE,
   game_state INTEGER DEFAULT 0 NOT NULL,
   placed_pieces INTEGER[][],
   board_id INTEGER NOT NULL
@@ -39,7 +52,7 @@ CREATE TABLE game_players (
   UNIQUE (game_id, play_order)
 );
 
--- We don't want to delete the turn when a player is deleted (it still happened)
+-- We don't want to delete the turn when a player is deleted (it still happens)
 CREATE TABLE game_turns (
   id SERIAL PRIMARY KEY,
   player_id UUID

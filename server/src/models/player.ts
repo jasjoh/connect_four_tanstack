@@ -1,5 +1,5 @@
 import { ExpressError, NotFoundError, BadRequestError } from "../expressError";
-import { SQLQueries } from "../utilities/sqlQueries";
+import { SQLQueries } from "../utilities/sql";
 import { Game } from "./game";
 import { Board } from "./board";
 

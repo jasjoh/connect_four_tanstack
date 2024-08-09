@@ -1,0 +1,22 @@
+General TODOS:
+- re-factor models to singletons + update calls
+- verify all models use QueryResult<> typing for results
+- consider translating all queries to strings (memory impact)
+- clean up comments for DRY
+- clean up imports + format docs
+
+Phase 1
+- players and games owned by users (including ai)
+- users have id, username, password, email and admin flag
+- default user exists and assigned if no authentication in place
+- user data not returned in endpoints
+
+Phase 2
+- auth endpoints exist and token parsing exists on all endpoints
+- all users are admins for all players and games
+
+Phase 3
+- client updated to leverage authentication
+
+Phase 4
+- remove default user logic

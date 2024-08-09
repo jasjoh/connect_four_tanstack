@@ -1,11 +1,23 @@
 \connect connect_four;
 
--- TODO: Added creation of boards (maybe using python?)
+/** Creates a normal user with password of 'password' */
+INSERT INTO users (id, username, password, email, is_admin)
+VALUES
+    (
+        '976d455b-2a3b-47ce-82d8-e4ea2fb10a5e',
+        'normaluser',
+        '$2b$12$AZH7virni5jlTTiGgEg4zu3lSvAw68qVEfSIOjJ3RqtbJbdW/Oi5q',
+        'normal_email@foo.com',
+        FALSE
+    );
 
--- INSERT INTO players (id, ai, name, color)
--- VALUES ('08b9a3b4-1fa0-4d1d-bfa2-e6955a1db3e2', TRUE, 'AI Player 1', '#c3c3c3'),
---        ('6fea23b5-d9c6-4c3d-92cc-8653965c4748', FALSE, 'Human Player 2', '#c2c2c2');
-
--- INSERT INTO games (id, width, height)
--- VALUES ('c3315d54-d943-490a-8c65-18fb57ab1a36', 6, 7),
---        ('478ac769-4e16-4151-8c2a-88a9283ed561', 8, 9);
+-- /** Creates an admin user with a password of 'password' */
+-- INSERT INTO users (id, username, password, email, is_admin)
+-- VALUES
+--     (
+--         '0d995e9d-33b4-4a88-85a1-960fc72d8eaf',
+--         'adminuser',
+--         '$2b$12$AZH7virni5jlTTiGgEg4zu3lSvAw68qVEfSIOjJ3RqtbJbdW/Oi5q',
+--         'admin_email@foo.com',
+--         TRUE
+--     );
