@@ -1,4 +1,3 @@
-"use strict";
 /** Routes for games */
 
 import express, { Request, Response, Router } from "express";

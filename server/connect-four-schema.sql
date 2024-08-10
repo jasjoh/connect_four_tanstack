@@ -5,8 +5,9 @@ CREATE TABLE users (
   username VARCHAR(25) UNIQUE,
   password TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE
-    CHECK (position('@') IN email) > 1),
-  is_admin BOOLEAN NOT NULL DEFAULT FALSE
+    CHECK (position('@' IN email) > 1),
+  is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+  created_on TIMESTAMPTZ DEFAULT current_timestamp
 );
 
 CREATE TABLE players (

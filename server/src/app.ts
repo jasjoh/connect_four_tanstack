@@ -5,6 +5,8 @@ import cors from "cors";
 
 import { gamesRouter } from "./routes/games";
 import { playersRouter } from "./routes/players";
+import { router as authRouter } from "./routes/auth";
+
 
 const app: Express = express();
 app.use(express.json());
@@ -14,6 +16,7 @@ app.use(cors());
 
 app.use("/games", gamesRouter);
 app.use("/players", playersRouter);
+app.use("/auth", authRouter);
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req: Request, res: Response, next: NextFunction) {
