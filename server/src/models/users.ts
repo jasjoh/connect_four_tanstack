@@ -23,6 +23,11 @@ export interface UserInterface extends UserBasicsInterface {
 
 interface UserWithPasswordInterface extends UserInterface, NewUserInterface { };
 
+export interface UserAuthTokenDataInterface {
+  id: string;
+  isAdmin: boolean;
+}
+
 export class User {
 
   private static instance: User;
