@@ -5,7 +5,7 @@ import { UserInterface } from "../models/users";
 
 export const createToken = (user: UserInterface) => {
   const payload = {
-    userId: user.id,
+    id: user.id,
     isAdmin: user.isAdmin === true,
   };
 
