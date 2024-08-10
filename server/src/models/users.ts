@@ -167,7 +167,7 @@ export class User {
    * Returns UnauthorizedError if the userId is not found or the
    * password for that userId does not match the one provided   *
    */
-  async authenticate(userId: string, password: string): Promise<UserInterface> {
+  async authenticate(username: string, password: string): Promise<UserInterface> {
 
     const result: QueryResult<UserWithPasswordInterface> = await db.query(
       `
@@ -180,9 +180,9 @@ export class User {
           created_on AS "createdOn"
         FROM users
         WHERE
-          id = $1
+          username = $1
       `,
-      [userId],
+      [username],
     );
 
     const userWithPassword = result.rows[0];
@@ -195,7 +195,7 @@ export class User {
       }
     }
 
-    throw new UnauthorizedError("Invalid userId/password");
+    throw new UnauthorizedError("Invalid username/password");
 
   }
 }
