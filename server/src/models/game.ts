@@ -77,6 +77,11 @@ interface GamePlayersInterface extends PlayerInterface {
   playOrder: number | null;
 }
 
+interface GameOwnerInterface {
+  id: string;
+  ownerId: string;
+}
+
 class Game {
 
   /**
@@ -752,18 +757,20 @@ class Game {
 
   /** Throws UnauthorizedError if specified game is not owned by specified user */
   static async verifyGameOwner(gameId: string, userId: string): Promise<void> {
+    console.log("verifyGameOwner called with gameId, userId:", gameId, userId);
 
-    const result: QueryResult<GameInterface> = await db.query(`
-      SELECT id
+    const result: QueryResult<GameOwnerInterface> = await db.query(`
+      SELECT id, owner_id AS "ownerId"
       FROM games
-      WHERE id = $1 AND owner_id = $2
-    `, [gameId, userId]);
+      WHERE id = $1
+    `, [gameId]);
 
     const game = result.rows[0];
-    // console.log("game found:", game);
 
-    if (!game) {
-      throw new UnauthorizedError("Specified game is not owned by the current user.")
+    if (!game) throw new NotFoundError(`No game with id: ${gameId}`);
+
+    if (game.ownerId !== userId) {
+      throw new UnauthorizedError("Specified game is not owned by the current user.");
     }
   }
 }

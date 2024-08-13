@@ -64,11 +64,11 @@ router.post(
 
 /** Retrieves the list of players in a game */
 router.get(
-  "/:id/players",
+  "/:gameid/players",
   [ensureLoggedIn],
   async function (req: Request, res: Response) {
     const user = res.locals.user!;
-    Game.verifyGameOwner(req.params.gameId, user.id);
+    await Game.verifyGameOwner(req.params.gameId, user.id);
     const players = await Game.getPlayers(req.params.gameId);
     return res.json({ players });
   }
@@ -76,11 +76,11 @@ router.get(
 
 /** Retrieves a specific game and its turns */
 router.get(
-  "/:id",
+  "/:gameid",
   [ensureLoggedIn],
   async function (req: Request, res: Response) {
     const user = res.locals.user!;
-    Game.verifyGameOwner(req.params.gameId, user.id);
+    await Game.verifyGameOwner(req.params.gameId, user.id);
     const game = await Game.getWithTurns(req.params.gameId);
     return res.json({ game });
   }
@@ -92,7 +92,7 @@ router.delete(
   [ensureLoggedIn],
   async function (req: Request, res: Response) {
     const user = res.locals.user!;
-    Game.verifyGameOwner(req.params.gameId, user.id);
+    await Game.verifyGameOwner(req.params.gameId, user.id);
     await Game.removePlayer(
       req.params.gameId, req.params.playerId
     );
@@ -102,11 +102,11 @@ router.delete(
 
 /** Deletes a game */
 router.delete(
-  "/:id",
+  "/:gameid",
   [ensureLoggedIn],
   async function (req: Request, res: Response) {
     const user = res.locals.user!;
-    Game.verifyGameOwner(req.params.gameId, user.id);
+    await Game.verifyGameOwner(req.params.gameId, user.id);
     await Game.delete(req.params.gameId);
     return res.json({ deleted: req.params.gameId });
   }
@@ -121,7 +121,7 @@ router.post(
     res: Response
   ) {
     const user = res.locals.user!;
-    Game.verifyGameOwner(req.params.gameId, user.id);
+    await Game.verifyGameOwner(req.params.gameId, user.id);
     await Game.dropPiece(
       req.params.gameId,
       req.body.playerId,
@@ -133,11 +133,11 @@ router.post(
 
 /** Starts or restarts the specified game (based on 'id' in URL param) */
 router.post(
-  "/:id/start",
+  "/:gameid/start",
   [ensureLoggedIn],
   async function (req: Request, res: Response) {
     const user = res.locals.user!;
-    Game.verifyGameOwner(req.params.gameId, user.id);
+    await Game.verifyGameOwner(req.params.gameId, user.id);
     await Game.start(req.params.gameId);
     return res.sendStatus(200);
   }
@@ -145,11 +145,11 @@ router.post(
 
 /** Adds one or more players to a game. */
 router.post(
-  "/:id/players",
+  "/:gameid/players",
   [ensureLoggedIn],
   async function (req: Request<ParamsDictionary, {}, string[]>, res: Response) {
     const user = res.locals.user!;
-    Game.verifyGameOwner(req.params.gameId, user.id);
+    await Game.verifyGameOwner(req.params.gameId, user.id);
     const result = await Game.addPlayers(req.params.gameId, req.body);
     return res.status(201).json({ playerCount: result });
   }
