@@ -1,5 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import { SECRET_KEY } from "../config";
+import { SECRET_KEY, DEFAULT_USER_ENABLED } from "../config";
 import { UnauthorizedError } from "../expressError";
 import { Request, Response, NextFunction } from "express";
 
@@ -13,6 +13,13 @@ import { UserAuthTokenDataInterface } from "../models/users";
  * if valid, injects UserAuthTokenDataInterface into locals.user
  */
 export function authenticateJWT(req: Request, res: Response, next: NextFunction) {
+  if (DEFAULT_USER_ENABLED) {
+    res.locals.user = {
+      id: '976d455b-2a3b-47ce-82d8-e4ea2fb10a5e',
+      isAdmin: false
+    }
+    return next();
+  }
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.replace(/^[Bb]earer /, "").trim();
@@ -33,7 +40,9 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
  */
 export function ensureLoggedIn(req: Request, res: Response, next: NextFunction) {
   if (res.locals.user?.id) return next();
-  throw new UnauthorizedError();
+  throw new UnauthorizedError(
+    "Unauthorized: You must be logged in to access this endpoint."
+  );
 }
 
 /**
@@ -42,7 +51,9 @@ export function ensureLoggedIn(req: Request, res: Response, next: NextFunction) 
  */
 export function ensureAdmin(req: Request, res: Response, next: NextFunction) {
   if (res.locals.user?.isAdmin === true) return next();
-  throw new UnauthorizedError();
+  throw new UnauthorizedError(
+    "Unauthorized: You must be logged in as an admin to access this endpoint."
+  );
 }
 
 /**

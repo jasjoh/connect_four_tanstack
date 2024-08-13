@@ -2,8 +2,12 @@ General TODOS:
 - re-factor models to singletons + update calls
 - verify all models use QueryResult<> typing for results
 - consider translating all queries to strings (memory impact)
+- remove default exports
+- remove return statements in routers
 - clean up comments for DRY
 - clean up imports + format docs
+- refactor update logic in games.ts model to use new partial update logic OR switch all to use lodash
+- remove fake user in middleware ensureLoggedIn()
 
 Phase 1
 - players and games owned by users (including ai)

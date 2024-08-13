@@ -3,6 +3,7 @@ import express, { Express, Request, Response, NextFunction } from "express";
 import { ExpressError, NotFoundError } from "./expressError";
 import cors from "cors";
 
+import { authenticateJWT } from "./middleware/auth";
 import { gamesRouter } from "./routes/games";
 import { playersRouter } from "./routes/players";
 import { router as authRouter } from "./routes/auth";
@@ -11,6 +12,7 @@ import { router as authRouter } from "./routes/auth";
 const app: Express = express();
 app.use(express.json());
 app.use(cors());
+app.use(authenticateJWT);
 
 /** ROUTES BELOW */
 

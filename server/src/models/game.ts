@@ -1,4 +1,4 @@
-import { NotFoundError } from "../expressError";
+import { NotFoundError, UnauthorizedError } from "../expressError";
 import {
   TooFewPlayers, PlayerAlreadyExists,
   InvalidGameState, InvalidPiecePlacement, NotCurrentPlayer
@@ -87,7 +87,8 @@ class Game {
    * Returns { ... game object ... }
    * */
   static async create(
-    boardDimensions: BoardDimensionsInterface = { height: 7, width: 6 }
+    boardDimensions: BoardDimensionsInterface = { height: 7, width: 6 },
+    userId: string
   ): Promise<GameInterface> {
 
     /** TODO:
@@ -103,10 +104,10 @@ class Game {
     // console.log("board created:", board);
 
     let result: QueryResult<GameInterface> = await db.query(`
-      INSERT INTO games ( board_id )
-      VALUES ( $1 )
+      INSERT INTO games ( board_id, owner_id )
+      VALUES ( $1, $2 )
       RETURNING *
-      `, [board.id]
+      `, [board.id, userId]
     );
 
     let game = result.rows[0];
@@ -121,7 +122,8 @@ class Game {
    * Returns the created game as GameInterface
    * */
   static async createWithBoard(
-    boardId: string
+    boardId: string,
+    userId: string,
   ): Promise<GameInterface> {
 
     /** TODO:
@@ -132,10 +134,10 @@ class Game {
      */
 
     let result: QueryResult<GameInterface> = await db.query(`
-      INSERT INTO games ( board_id )
-      VALUES ( $1 )
+      INSERT INTO games ( board_id, owner_id )
+      VALUES ( $1, $2 )
       RETURNING *
-      `, [boardId]
+      `, [boardId, userId]
     );
 
     let game = result.rows[0];
@@ -149,7 +151,7 @@ class Game {
    * Retrieves an array of all games with summary information
    * Returns [{ id, gameState, createdOn }, ...]   *
    * */
-  static async getAll(): Promise<GameInterface[]> {
+  static async getAll(userId: string): Promise<GameInterface[]> {
 
     const result: QueryResult<GameInterface> = await db.query(`
         SELECT
@@ -159,8 +161,9 @@ class Game {
           COUNT(game_players.game_id)::int AS "totalPlayers"
         FROM games
         LEFT JOIN game_players on games.id = game_players.game_id
+        WHERE games.owner_id = $1
         GROUP BY games.id, games.game_state, games.created_on
-        ORDER BY created_on`
+        ORDER BY created_on`, [userId]
     );
 
     return result.rows;
@@ -745,6 +748,23 @@ class Game {
 
     // console.log("checkForGameEnd() determined game should continue");
     return game as GameInterface;
+  }
+
+  /** Throws UnauthorizedError if specified game is not owned by specified user */
+  static async verifyGameOwner(gameId: string, userId: string): Promise<void> {
+
+    const result: QueryResult<GameInterface> = await db.query(`
+      SELECT id
+      FROM games
+      WHERE id = $1 AND owner_id = $2
+    `, [gameId, userId]);
+
+    const game = result.rows[0];
+    // console.log("game found:", game);
+
+    if (!game) {
+      throw new UnauthorizedError("Specified game is not owned by the current user.")
+    }
   }
 }
 

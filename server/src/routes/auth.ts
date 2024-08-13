@@ -11,7 +11,7 @@ import { User } from "../models/users";
 export const router: Router = Router();
 
 /**
- * Endpoint for retrieve a new auth token
+ * Endpoint for retrieving a new auth token
  * Requires POST body of { username, password }
  * Success returns 201 with auth token in response body
  */
