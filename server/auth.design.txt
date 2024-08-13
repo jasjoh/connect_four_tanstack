@@ -9,6 +9,7 @@ General TODOS:
 - refactor update logic in games.ts model to use new partial update logic OR switch all to use lodash
 - remove fake user in middleware ensureLoggedIn()
 - implement connection pooling
+- update all SQL calls to use independent SQL variable
 
 Phase 1
 - players and games owned by users (including ai)

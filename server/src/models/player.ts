@@ -1,10 +1,11 @@
-import { ExpressError, NotFoundError, BadRequestError } from "../expressError";
+import { NotFoundError, UnauthorizedError } from "../expressError";
+import { QueryResult } from "pg";
+import db from "../db";
+
 import { SQLQueries } from "../utilities/sql";
 import { Game } from "./game";
 import { Board } from "./board";
 
-import db from "../db";
-import { Console } from "console";
 
 // const { sqlForPartialUpdate } = require("../helpers/sql");
 
@@ -24,6 +25,11 @@ interface PlayerInterface extends NewPlayerInterface {
   id: string;
   createdOn: Date;
 };
+
+interface PlayerOwnerInterface {
+  id: string;
+  ownerId: string;
+}
 
 const delayInMs = 200;
 
@@ -49,23 +55,26 @@ class Player {
    *
    * Returns { id, name, color, ai, createdOn }
    * */
-  static async create(newPlayer: NewPlayerInterface) : Promise<PlayerInterface> {
+  static async create(
+    newPlayer: NewPlayerInterface,
+    userId: string
+  ) : Promise<PlayerInterface> {
 
-    const result = await db.query(`
-                INSERT INTO players (name,
-                                      color,
-                                      ai)
-                VALUES ($1, $2, $3)
-                RETURNING
-                    id,
-                    name,
-                    color,
-                    ai,
-                    created_on AS "createdOn"`, [
-          newPlayer.name,
-          newPlayer.color,
-          newPlayer.ai
-        ],
+    const result = await db.query(
+      `INSERT INTO players (name, color, ai, owner_id)
+      VALUES ($1, $2, $3, $4)
+      RETURNING
+        id,
+        name,
+        color,
+        ai,
+        created_on AS "createdOn"`,
+      [
+        newPlayer.name,
+        newPlayer.color,
+        newPlayer.ai,
+        userId
+      ],
     );
 
     const player : PlayerInterface = result.rows[0];
@@ -76,14 +85,15 @@ class Player {
    * Find all players
    * Returns [{ id, name, color, ai, createdOn }, ...]   *
    * */
-  static async getAll() {
+  static async getAll(userId: string) {
 
     const sqlQuery = `
       SELECT ${SQLQueries.defaultPlayerCols}
       FROM players
+      WHERE owner_id = $1
       ORDER BY created_on
     `
-    const result = await db.query(sqlQuery);
+    const result = await db.query(sqlQuery, [userId]);
 
     // console.log("TO BE TYPED: result in Player.getAll");
 
@@ -146,6 +156,23 @@ class Player {
     await Game.dropPiece(gameId, playerId, colToAttempt);
   }
 
+    /** Throws UnauthorizedError if specified game is not owned by specified user */
+  static async verifyPlayerOwner(playerId: string, userId: string): Promise<void> {
+
+    const result: QueryResult<PlayerOwnerInterface> = await db.query(`
+      SELECT id, owner_id AS "ownerId"
+      FROM players
+      WHERE id = $1
+    `, [playerId]);
+
+    const player = result.rows[0];
+
+    if (!player) throw new NotFoundError(`No player with id: ${playerId}`);
+
+    if (player.ownerId !== userId) {
+      throw new UnauthorizedError("Specified player is not owned by the current user.");
+    }
+  }
 }
 
 export { Player, NewPlayerInterface, PlayerInterface };

@@ -4,6 +4,7 @@
 import express, { Request, Response, Router } from "express";
 
 import { Player } from "../models/player";
+import { ensureLoggedIn, ensurePlayerOwnerOrAdmin } from "../middleware/auth";
 
 const router: Router = express.Router();
 
@@ -14,34 +15,51 @@ const router: Router = express.Router();
 /** Retrieves a list of all players
  * Returns array of player objects like { id, ai, color, name, created_on }
  */
-router.get("/", async function (req: Request, res: Response) {
-  const players = await Player.getAll();
-  return res.json({ players });
-});
+router.get(
+  "/",
+  [ensureLoggedIn],
+  async function (req: Request, res: Response) {
+    const user = res.locals.user!;
+    const players = await Player.getAll(user.id);
+    return res.json({ players });
+  }
+);
 
 /** Retrieves a specific player based on id
  * Returns a player object like { id, ai, color, name, created_on }
  */
-router.get("/:id", async function (req: Request, res: Response) {
-  const player = await Player.get(req.params.id);
-  return res.json({ player });
-});
+router.get(
+  "/:playerid",
+  [ensureLoggedIn, ensurePlayerOwnerOrAdmin],
+  async function (req: Request, res: Response) {
+    const player = await Player.get(req.params.playerid);
+    return res.json({ player });
+  }
+);
 
 /** Creates a new player based on req object { name, color, ai }
  * Returns a player object like { id, name, color, ai, createdOn }
  */
-router.post("/", async function (req: Request, res: Response) {
-  const player = await Player.create(req.body);
-  return res.status(201).json({ player });
-});
+router.post(
+  "/",
+  [ensureLoggedIn],
+  async function (req: Request, res: Response) {
+    const user = res.locals.user!;
+    const player = await Player.create(req.body, user.id);
+    return res.status(201).json({ player });
+  }
+);
 
 /** Deletes a player
  * Returns the delete player's id
  */
-router.delete("/:id", async function (req: Request, res: Response) {
-  await Player.delete(req.params.id);
-  return res.json({ deleted: req.params.id });
-});
-
+router.delete(
+  "/:playerid",
+  [ensureLoggedIn, ensurePlayerOwnerOrAdmin],
+  async function (req: Request, res: Response) {
+    await Player.delete(req.params.playerid);
+    return res.json({ deleted: req.params.playerid });
+  }
+);
 
 export { router as playersRouter };

@@ -5,6 +5,7 @@ import { Request, Response, NextFunction } from "express";
 
 import { UserAuthTokenDataInterface } from "../models/users";
 import { Game } from "../models/game";
+import { Player } from "../models/player";
 
 // TODO: Add function comments
 
@@ -68,6 +69,19 @@ export async function ensureGameOwnerOrAdmin(req: Request, res: Response, next: 
   const currentUser = res.locals.user as UserAuthTokenDataInterface;
   if (currentUser.isAdmin === false) {
     await Game.verifyGameOwner(req.params.gameid, currentUser.id);
+  }
+  return next();
+}
+
+/**
+ * Router Middleware
+ * Ensures params.playerid is owned by res.locals.user.id or res.local.user.isAdmin is TRUE
+ * Throws UnauthorizedError otherwise
+*/
+export async function ensurePlayerOwnerOrAdmin(req: Request, res: Response, next: NextFunction) {
+  const currentUser = res.locals.user as UserAuthTokenDataInterface;
+  if (currentUser.isAdmin === false) {
+    await Player.verifyPlayerOwner(req.params.playerid, currentUser.id);
   }
   return next();
 }

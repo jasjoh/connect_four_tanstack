@@ -757,7 +757,6 @@ class Game {
 
   /** Throws UnauthorizedError if specified game is not owned by specified user */
   static async verifyGameOwner(gameId: string, userId: string): Promise<void> {
-    console.log("verifyGameOwner called with gameId, userId:", gameId, userId);
 
     const result: QueryResult<GameOwnerInterface> = await db.query(`
       SELECT id, owner_id AS "ownerId"
