@@ -13,22 +13,24 @@ import { UserAuthTokenDataInterface } from "../models/users";
  * if valid, injects UserAuthTokenDataInterface into locals.user
  */
 export function authenticateJWT(req: Request, res: Response, next: NextFunction) {
-  if (DEFAULT_USER_ENABLED) {
-    res.locals.user = {
-      id: '976d455b-2a3b-47ce-82d8-e4ea2fb10a5e',
-      isAdmin: false
-    }
-    return next();
-  }
   const authHeader = req.headers.authorization;
+  console.log("authHeader discovered:", authHeader);
   if (authHeader) {
     const token = authHeader.replace(/^[Bb]earer /, "").trim();
-
+    console.log("token discoverd:", token);
     try {
       const user = jwt.verify(token, SECRET_KEY) as UserAuthTokenDataInterface;
       res.locals.user = user;
     } catch (err) {
       /* ignore invalid tokens */
+    }
+  } else {
+    if (DEFAULT_USER_ENABLED) {
+      res.locals.user = {
+        id: '976d455b-2a3b-47ce-82d8-e4ea2fb10a5e',
+        isAdmin: false
+      }
+      return next();
     }
   }
   return next();
