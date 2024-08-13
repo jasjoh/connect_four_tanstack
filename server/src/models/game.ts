@@ -15,7 +15,7 @@ import {
   BoardDataType,
   BoardDimensionsInterface
 } from "./board";
-import { Turn, TurnInterface } from "./turns";
+import { Turn, TurnInterface } from "./turn";
 
 import { QueryResult } from "pg";
 import _ from "lodash";
@@ -92,8 +92,8 @@ class Game {
    * Returns { ... game object ... }
    * */
   static async create(
-    boardDimensions: BoardDimensionsInterface = { height: 7, width: 6 },
-    userId: string
+    userId: string,
+    boardDimensions: BoardDimensionsInterface = { height: 7, width: 6 }
   ): Promise<GameInterface> {
 
     /** TODO:

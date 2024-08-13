@@ -6,7 +6,7 @@ import authTokenSchema from "../schemas/authToken.json";
 
 import { BadRequestError } from "../expressError";
 import { createToken } from "../utilities/tokens";
-import { User } from "../models/users";
+import { User } from "../models/user";
 
 export const router: Router = Router();
 

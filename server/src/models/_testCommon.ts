@@ -4,6 +4,10 @@ import db from "../db";
 import { Game } from "./game";
 import { Player } from "./player";
 import { createPlayers } from "./_factories";
+import { User, UserInterface } from "./user";
+
+const userModel = User.getInstance();
+export let testUser : UserInterface | null = null;
 
 // const testGameIds = [
 //   'c3315d54-d943-490a-8c65-18fb57ab1a36',
@@ -30,6 +34,9 @@ async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM game_turns");
 
+  // noinspection SqlWithoutWhere
+  await db.query("DELETE FROM users");
+
   // create test players
   // await db.query(`
   //   INSERT INTO players (id, ai, name, color)
@@ -38,7 +45,16 @@ async function commonBeforeAll() {
   //     ($2, FALSE, 'Human Player 2', '#c2c2c2')
   // `, [testPlayerIds[0], testPlayerIds[1]]);
 
-  const players = await createPlayers(2);
+  if (!testUser) {
+    testUser = await userModel.register({
+      email: 'test@test.com',
+      username: 'tester',
+      password: 'password',
+      isAdmin: false
+    });
+  }
+
+  const players = await createPlayers(testUser.id, 2);
   // TODO: Destructure players.id into an array and remove loop below
 
   // create test game
@@ -49,7 +65,7 @@ async function commonBeforeAll() {
   //     ($2, 8, 9)
   // `,[testGameIds[0], testGameIds[1]]);
 
-  const game = await Game.create();
+  const game = await Game.create(testUser.id);
 
   for (let player of players) {
     Game.addPlayers(game.id, [player.id])

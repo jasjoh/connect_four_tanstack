@@ -1,7 +1,7 @@
 import * as jwt from "jsonwebtoken";
 import { SECRET_KEY } from "../config";
 
-import { UserInterface } from "../models/users";
+import { UserInterface } from "../models/user";
 
 export const createToken = (user: UserInterface) => {
   const payload = {

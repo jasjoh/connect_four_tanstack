@@ -3,7 +3,7 @@ import { SECRET_KEY, DEFAULT_USER_ENABLED } from "../config";
 import { UnauthorizedError } from "../expressError";
 import { Request, Response, NextFunction } from "express";
 
-import { UserAuthTokenDataInterface } from "../models/users";
+import { UserAuthTokenDataInterface } from "../models/user";
 import { Game } from "../models/game";
 import { Player } from "../models/player";
 
@@ -16,10 +16,8 @@ import { Player } from "../models/player";
  */
 export function authenticateJWT(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
-  console.log("authHeader discovered:", authHeader);
   if (authHeader) {
     const token = authHeader.replace(/^[Bb]earer /, "").trim();
-    console.log("token discoverd:", token);
     try {
       const user = jwt.verify(token, SECRET_KEY) as UserAuthTokenDataInterface;
       res.locals.user = user;

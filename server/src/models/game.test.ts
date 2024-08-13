@@ -1,29 +1,26 @@
 import db from "../db";
-import { BadRequestError, NotFoundError } from "../expressError";
+import { NotFoundError } from "../expressError";
+
 import {
   Game,
   GameInterface,
   BoardDimensionsInterface
 } from "./game";
-import {
-  Player,
-  NewPlayerInterface,
-  PlayerInterface
-} from "./player";
+
 import { createNearlyWonGame, createNearlyTiedGame, createPlayers } from "./_factories";
-import { Board, BoardDataType } from "./board";
-import {
-  TooFewPlayers, PlayerAlreadyExists,
-  InvalidGameState, InvalidPiecePlacement, NotCurrentPlayer
-} from "../utilities/gameErrors";
+import { BoardDataType } from "./board";
+
+import { TooFewPlayers, PlayerAlreadyExists } from "../utilities/gameErrors";
 import { QueryResult } from "pg";
 
 import {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
-  commonAfterAll
+  commonAfterAll,
+  testUser
 } from "./_testCommon";
+
 import { randomUUID } from "crypto";
 
 beforeAll(commonBeforeAll);
@@ -39,7 +36,7 @@ describe("create a new game", function () {
   test("create a game successfully", async function () {
 
     // verify game was returned from creation
-    const createdGame = await Game.create(boardDimensions);
+    const createdGame = await Game.create(testUser!.id, boardDimensions);
 
     // console.log("result of creating a game:", createdGame);
 
@@ -63,14 +60,14 @@ describe("create a new game", function () {
 describe("get all games", function () {
 
   test("returns default games", async function () {
-    const existingGames = await Game.getAll();
+    const existingGames = await Game.getAll(testUser!.id);
     expect(existingGames.length).toEqual(1);
   });
 
   test("returns all games including newly created ones", async function () {
-    await Game.create(boardDimensions);
-    await Game.create(boardDimensions);
-    const existingGames = await Game.getAll();
+    await Game.create(testUser!.id, boardDimensions);
+    await Game.create(testUser!.id, boardDimensions);
+    const existingGames = await Game.getAll(testUser!.id);
     expect(existingGames.length).toEqual(3);
   });
 });
@@ -78,7 +75,7 @@ describe("get all games", function () {
 describe("get game details", function () {
 
   test("returns created ame", async function () {
-    const createGame = await Game.create(boardDimensions);
+    const createGame = await Game.create(testUser!.id, boardDimensions);
     const retrievedGame = await Game.get(createGame.id);
     expect(createGame).toEqual(retrievedGame);
   });
@@ -87,10 +84,10 @@ describe("get game details", function () {
 describe("delete game", function () {
 
   test("deletes default game", async function () {
-    let existingGames = await Game.getAll();
+    let existingGames = await Game.getAll(testUser!.id);
     const gameToDeleteId = existingGames[0].id;
     Game.delete(gameToDeleteId);
-    existingGames = await Game.getAll();
+    existingGames = await Game.getAll(testUser!.id);
     expect(existingGames.length).toEqual(0);
   });
 
@@ -100,8 +97,8 @@ describe("add player to game", function () {
 
   test("successfully adds a player", async function () {
 
-    const players = await createPlayers(1);
-    const existingGames = await Game.getAll();
+    const players = await createPlayers(testUser!.id, 1);
+    const existingGames = await Game.getAll(testUser!.id);
     const existingPlayerCount = existingGames[0].totalPlayers;
 
     // confirm addPlayers() returns expected count
@@ -115,8 +112,8 @@ describe("add player to game", function () {
 
   test("throws exception adding existing player", async function () {
 
-    const players = await createPlayers(1);
-    const existingGames = await Game.getAll();
+    const players = await createPlayers(testUser!.id, 1);
+    const existingGames = await Game.getAll(testUser!.id);
 
     await Game.addPlayers(existingGames[0].id, [players[0].id]);
 
@@ -133,8 +130,8 @@ describe("remove player from game", function () {
 
   test("successfully remove a player", async function () {
 
-    const players = await createPlayers(1);
-    const existingGames = await Game.getAll();
+    const players = await createPlayers(testUser!.id, 1);
+    const existingGames = await Game.getAll(testUser!.id);
     const existingPlayerCount = existingGames[0].totalPlayers;
 
     let playerCount = await Game.addPlayers(existingGames[0].id, [players[0].id]);
@@ -147,7 +144,7 @@ describe("remove player from game", function () {
 
   test("throws exception removing non-existing player", async function () {
 
-    const existingGames = await Game.getAll();
+    const existingGames = await Game.getAll(testUser!.id);
 
     try {
       await Game.removePlayer(randomUUID(), existingGames[0].id);
@@ -162,8 +159,8 @@ describe("get list of players in game", function () {
 
   test("successfully get list of players", async function () {
 
-    const players = await createPlayers(2);
-    const existingGames = await Game.getAll();
+    const players = await createPlayers(testUser!.id, 2);
+    const existingGames = await Game.getAll(testUser!.id);
     const existingPlayerCount = existingGames[0].totalPlayers;
 
     await Game.addPlayers(existingGames[0].id, [players[0].id]);
@@ -180,8 +177,8 @@ describe("start a game", function () {
 
   test("successfully updates game state", async function () {
 
-    const players = await createPlayers(2);
-    const existingGames = await Game.getAll();
+    const players = await createPlayers(testUser!.id, 2);
+    const existingGames = await Game.getAll(testUser!.id);
     const gameToStart = existingGames[0];
 
     expect(gameToStart.gameState).toEqual(0);
@@ -206,8 +203,8 @@ describe("start a game", function () {
 
   test("throws error if too few players", async function () {
 
-    const players = await createPlayers(1);
-    const existingGames = await Game.getAll();
+    const players = await createPlayers(testUser!.id, 1);
+    const existingGames = await Game.getAll(testUser!.id);
     const gameToStart = existingGames[0];
 
     expect(gameToStart.gameState).toEqual(0);
@@ -223,8 +220,8 @@ describe("start a game", function () {
 
   test("does not call nextTurn() when instructed not to", async function () {
 
-    const players = await createPlayers(2);
-    const existingGames = await Game.getAll();
+    const players = await createPlayers(testUser!.id, 2);
+    const existingGames = await Game.getAll(testUser!.id);
     const gameToStart = existingGames[0];
 
     expect(gameToStart.gameState).toEqual(0);
@@ -239,8 +236,8 @@ describe("start a game", function () {
 
   test("calls nextTurn() by default", async function () {
 
-    const players = await createPlayers(2);
-    const existingGames = await Game.getAll();
+    const players = await createPlayers(testUser!.id, 2);
+    const existingGames = await Game.getAll(testUser!.id);
     const gameToStart = existingGames[0];
 
     expect(gameToStart.gameState).toEqual(0);
@@ -264,8 +261,8 @@ describe("drops piece", function () {
     console.log("running successfully drop piece test");
 
     // setup a game and start it
-    const players = await createPlayers(2);
-    const games = await Game.getAll();
+    const players = await createPlayers(testUser!.id, 2);
+    const games = await Game.getAll(testUser!.id);
     let game = games[0];
 
     await Game.addPlayers(game.id, [players[0].id]);
@@ -289,12 +286,12 @@ describe("drops piece", function () {
   });
 
   test("successfully detects a won game", async function () {
-    const players = await createPlayers(2);
+    const players = await createPlayers(testUser!.id, 2);
     const playerIds = [
       players[0].id,
       players[1].id
     ];
-    let game = await createNearlyWonGame(boardDimensions, playerIds, playerIds[0]);
+    let game = await createNearlyWonGame(testUser!.id, boardDimensions, playerIds, playerIds[0]);
     // console.log("nearly won game:", game);
     expect(game.gameState).toBe(1);
 
@@ -304,12 +301,12 @@ describe("drops piece", function () {
   });
 
   test("successfully detects a tied game", async function () {
-    const players = await createPlayers(2);
+    const players = await createPlayers(testUser!.id, 2);
     const playerIds = [
       players[0].id,
       players[1].id
     ];
-    let game = await createNearlyTiedGame(boardDimensions, playerIds[0]);
+    let game = await createNearlyTiedGame(testUser!.id, boardDimensions, playerIds[0]);
     expect(game.gameState).toBe(1);
 
     game = await Game.dropPiece(game.id, playerIds[0], 0);
@@ -323,7 +320,7 @@ describe("game turns retrieval", function () {
 
   test("successfully returns no turns when none have transpired", async function () {
 
-    const games = await Game.getAll();
+    const games = await Game.getAll(testUser!.id);
     let game = games[0];
     expect(await Game.getTurns(game.id)).toEqual([]);
   });
@@ -331,8 +328,8 @@ describe("game turns retrieval", function () {
   test("successfully returns correct number of turns", async function () {
 
     // setup a game, start it and take a turn
-    const players = await createPlayers(2);
-    const games = await Game.getAll();
+    const players = await createPlayers(testUser!.id, 2);
+    const games = await Game.getAll(testUser!.id);
     let game = games[0];
 
     await Game.addPlayers(game.id, [players[0].id]);

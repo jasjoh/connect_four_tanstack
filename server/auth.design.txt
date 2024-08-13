@@ -7,19 +7,17 @@ General TODOS:
 - clean up comments for DRY
 - clean up imports + format docs
 - refactor update logic in games.ts model to use new partial update logic OR switch all to use lodash
-- remove fake user in middleware ensureLoggedIn()
+- remove fake user in middleware authenticateJwt()
 - implement connection pooling
-- update all SQL calls to use independent SQL variable
 
 Phase 1
-- players and games owned by users (including ai)
-- users have id, username, password, email and admin flag
-- default user exists and assigned if no authentication in place
-- user data not returned in endpoints
+- players and games owned by users (including ai) [done]
+- users have id, username, password, email and admin flag [done]
+- default user exists and assigned if no authentication in place [done]
+- user data not returned in endpoints [done]
 
 Phase 2
-- auth endpoints exist and token parsing exists on all endpoints
-- all users are admins for all players and games
+- auth endpoints exist and token parsing exists on all endpoints [done]
 
 Phase 3
 - client updated to leverage authentication

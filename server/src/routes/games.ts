@@ -55,7 +55,7 @@ router.post(
   [ensureLoggedIn],
   async function (req: Request<{}, {}, BoardDimensionsInterface>, res: Response) {
     const user = res.locals.user!;
-    const game = await Game.create(req.body, user.id);
+    const game = await Game.create(user.id, req.body);
     return res.status(201).json({ game });
   }
 );

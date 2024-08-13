@@ -17,6 +17,7 @@ import { Board } from "./board";
  * Returns the newly created Game instance
  */
 async function createGameWithBoardData(
+    userId: string,
     boardData: BoardDataType
   ): Promise<GameInterface> {
 
@@ -41,7 +42,7 @@ async function createGameWithBoardData(
   let board = await Board.create(boardDimensions);
   board = await Board.update(board.id, boardData);
 
-  let game = await Game.createWithBoard(board.id);
+  let game = await Game.createWithBoard(userId, board.id);
   // game = await Game.update()
 
   // determine game state
@@ -74,6 +75,7 @@ async function createGameWithBoardData(
  * Returns the newly created Game instance
  */
 async function createNearlyWonGame(
+  userId: string,
   boardDimensions: BoardDimensionsInterface,
   playerIds: string[],
   winningPlayerId: string
@@ -81,7 +83,7 @@ async function createNearlyWonGame(
 
 // console.log("createNearlyWonGame factory function called");
 
-let game = await Game.create(boardDimensions);
+let game = await Game.create(userId, boardDimensions);
 await Game.addPlayers(game.id, playerIds);
 await Game.start(game.id, false);
 const boardId = game.boardId;
@@ -118,14 +120,15 @@ return game;
  * Returns the newly created Game instance
  */
 async function createNearlyTiedGame(
+  userId: string,
   boardDimensions: BoardDimensionsInterface,
   currPlayerId: string
 ): Promise<GameInterface> {
 
 // console.log("createNearlyTiedGame factory function called");
 
-let game = await Game.create(boardDimensions);
-const players = await createPlayers(2);
+let game = await Game.create(userId, boardDimensions);
+const players = await createPlayers(userId, 2);
 const playerIds = players.map(p => p.id);
 await Game.addPlayers(game.id, playerIds);
 await Game.start(game.id, false);
@@ -161,7 +164,7 @@ return game;
  * Accepts an optional count for numbers of players to create (default 1)
  * Returns an array of player objects which have been created (PlayerInterface)
 */
-async function createPlayers(count : number = 1) : Promise<PlayerInterface[]> {
+async function createPlayers(userId: string, count : number = 1) : Promise<PlayerInterface[]> {
   // console.log("createPlayers factory function called");
   const players : PlayerInterface[] = [];
   let counter = 1;
@@ -171,7 +174,7 @@ async function createPlayers(count : number = 1) : Promise<PlayerInterface[]> {
       color: generateRandomHexColor(),
       ai: false
     }
-    const player = await Player.create(playerData);
+    const player = await Player.create(playerData, userId);
     players.push(player);
     counter++;
   }

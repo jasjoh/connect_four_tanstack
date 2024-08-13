@@ -60,6 +60,8 @@ class Player {
     userId: string
   ) : Promise<PlayerInterface> {
 
+    console.log(`Player.create() called with newPlayer: ${newPlayer} and userId: ${userId}`);
+
     const result = await db.query(
       `INSERT INTO players (name, color, ai, owner_id)
       VALUES ($1, $2, $3, $4)
