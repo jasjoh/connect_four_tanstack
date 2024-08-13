@@ -4,9 +4,7 @@ import express, { Request, Response, Router } from "express";
 import { ParamsDictionary } from 'express-serve-static-core';
 import { CorsRequest } from "cors";
 
-import { UnauthorizedError } from "../expressError";
-
-import { ensureLoggedIn, ensureCorrectUserOrAdmin } from "../middleware/auth";
+import { ensureLoggedIn, ensureGameOwnerOrAdmin } from "../middleware/auth";
 
 import { BoardDimensionsInterface, Game } from "../models/game";
 
@@ -65,11 +63,9 @@ router.post(
 /** Retrieves the list of players in a game */
 router.get(
   "/:gameid/players",
-  [ensureLoggedIn],
+  [ensureLoggedIn, ensureGameOwnerOrAdmin],
   async function (req: Request, res: Response) {
-    const user = res.locals.user!;
-    await Game.verifyGameOwner(req.params.gameId, user.id);
-    const players = await Game.getPlayers(req.params.gameId);
+    const players = await Game.getPlayers(req.params.gameid);
     return res.json({ players });
   }
 );
@@ -77,11 +73,9 @@ router.get(
 /** Retrieves a specific game and its turns */
 router.get(
   "/:gameid",
-  [ensureLoggedIn],
+  [ensureLoggedIn, ensureGameOwnerOrAdmin],
   async function (req: Request, res: Response) {
-    const user = res.locals.user!;
-    await Game.verifyGameOwner(req.params.gameId, user.id);
-    const game = await Game.getWithTurns(req.params.gameId);
+    const game = await Game.getWithTurns(req.params.gameid);
     return res.json({ game });
   }
 );
@@ -89,12 +83,10 @@ router.get(
 /** Removes a player from a game */
 router.delete(
   "/:gameid/players/:playerid",
-  [ensureLoggedIn],
+  [ensureLoggedIn, ensureGameOwnerOrAdmin],
   async function (req: Request, res: Response) {
-    const user = res.locals.user!;
-    await Game.verifyGameOwner(req.params.gameId, user.id);
     await Game.removePlayer(
-      req.params.gameId, req.params.playerId
+      req.params.gameid, req.params.playerId
     );
     return res.json({ removed: req.params.playerId });
   }
@@ -103,29 +95,25 @@ router.delete(
 /** Deletes a game */
 router.delete(
   "/:gameid",
-  [ensureLoggedIn],
+  [ensureLoggedIn, ensureGameOwnerOrAdmin],
   async function (req: Request, res: Response) {
-    const user = res.locals.user!;
-    await Game.verifyGameOwner(req.params.gameId, user.id);
-    await Game.delete(req.params.gameId);
-    return res.json({ deleted: req.params.gameId });
+    await Game.delete(req.params.gameid);
+    return res.json({ deleted: req.params.gameid });
   }
 );
 
 /** Attempts to place a piece in the specific column in the specified game */
 router.post(
   "/:gameid/cols/:colid",
-  [ensureLoggedIn],
+  [ensureLoggedIn, ensureGameOwnerOrAdmin],
   async function (
     req: Request<ParamsDictionary, {}, DropPieceRequestBody>,
     res: Response
   ) {
-    const user = res.locals.user!;
-    await Game.verifyGameOwner(req.params.gameId, user.id);
     await Game.dropPiece(
-      req.params.gameId,
+      req.params.gameid,
       req.body.playerId,
-      Number(req.params.colId)
+      Number(req.params.colid)
     );
     return res.sendStatus(200);
   }
@@ -134,11 +122,9 @@ router.post(
 /** Starts or restarts the specified game (based on 'id' in URL param) */
 router.post(
   "/:gameid/start",
-  [ensureLoggedIn],
+  [ensureLoggedIn, ensureGameOwnerOrAdmin],
   async function (req: Request, res: Response) {
-    const user = res.locals.user!;
-    await Game.verifyGameOwner(req.params.gameId, user.id);
-    await Game.start(req.params.gameId);
+    await Game.start(req.params.gameid);
     return res.sendStatus(200);
   }
 );
@@ -146,11 +132,9 @@ router.post(
 /** Adds one or more players to a game. */
 router.post(
   "/:gameid/players",
-  [ensureLoggedIn],
+  [ensureLoggedIn, ensureGameOwnerOrAdmin],
   async function (req: Request<ParamsDictionary, {}, string[]>, res: Response) {
-    const user = res.locals.user!;
-    await Game.verifyGameOwner(req.params.gameId, user.id);
-    const result = await Game.addPlayers(req.params.gameId, req.body);
+    const result = await Game.addPlayers(req.params.gameid, req.body);
     return res.status(201).json({ playerCount: result });
   }
 );
