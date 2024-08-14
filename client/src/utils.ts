@@ -4,7 +4,7 @@ export const gameStates = [
   'Started',
   'Won',
   'Tied'
-]
+];
 
 export interface DelayHandle {
   promise: Promise<void>;
@@ -12,7 +12,7 @@ export interface DelayHandle {
 }
 
 /** Simple function to generate hexadecimal MD5 hashes from strings */
-export function generateMD5HashHex(str: string) : string {
+export function generateMD5HashHex(str: string): string {
   let currentHashVal = 0;
 
   for (let char of str) {
@@ -23,7 +23,7 @@ export function generateMD5HashHex(str: string) : string {
 }
 
 /** Generates and returns a pseudo-random hex color */
-export function generateRandomHexColor() : string {
+export function generateRandomHexColor(): string {
   const randNum = Math.floor(Math.random() * 9999999 + 100000000);
   return randNum.toString(16).slice(0, 6);
 }
@@ -32,8 +32,8 @@ export function generateRandomHexColor() : string {
  * Serves as a simplified 'wait n ms' capability
  * Simply 'await delay(delayInMs)' anywhere you want to pause in your code
  */
-export async function delay(ms: number) : Promise<void> {
-  return new Promise( resolve => setTimeout(resolve, ms));
+export async function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
@@ -41,9 +41,9 @@ export async function delay(ms: number) : Promise<void> {
  * In addition to awaiting it's promise, you can also
  * cancel its timer via clearTimeout(timeout)
  */
-export function delayWithHandle(ms: number) : DelayHandle {
+export function delayWithHandle(ms: number): DelayHandle {
   let timeout = null;
-  const p : Promise<void> = new Promise( resolve => {
+  const p: Promise<void> = new Promise(resolve => {
     timeout = setTimeout(resolve, ms);
   });
   return { promise: p, timeout: timeout };
