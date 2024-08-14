@@ -15,22 +15,44 @@ import { Player } from "../models/player";
  * if valid, injects UserAuthTokenDataInterface into locals.user
  */
 export function authenticateJWT(req: Request, res: Response, next: NextFunction) {
-  const authHeader = req.headers.authorization;
-  if (authHeader) {
-    const token = authHeader.replace(/^[Bb]earer /, "").trim();
-    try {
-      const user = jwt.verify(token, SECRET_KEY) as UserAuthTokenDataInterface;
-      res.locals.user = user;
-    } catch (err) {
-      /* ignore invalid tokens */
+  let headerToken = null;
+  let cookieToken = null;
+
+  let headerPayload = null;
+  let cookiePayload = null;
+
+  headerToken = getAuthTokenFromHeader(req);
+  if (headerToken !== null) {
+    console.log("found headerToken:", headerToken);
+    headerPayload = getTokenPayload(headerToken);
+    if (headerPayload !== null) {
+      console.log("found headerPayload:", headerPayload);
     }
+  }
+
+  cookieToken = getAuthTokenFromCookie(req);
+  if (cookieToken !== null) {
+    console.log("found cookieToken:", cookieToken);
+    cookiePayload = getTokenPayload(cookieToken);
+    if (cookiePayload !== null) {
+      console.log("found cookiePayload:", cookiePayload);
+    }
+  }
+
+  if (cookiePayload !== null) {
+    if (headerPayload !== null && cookiePayload !== headerPayload) {
+      console.log("cookie and header based auth tokens provided, but do not match");
+      return next();
+    }
+    res.locals.user = cookiePayload;
+  } else if (headerPayload !== null) {
+    res.locals.user = headerPayload;
   } else {
     if (DEFAULT_USER_ENABLED) {
       res.locals.user = {
         id: '976d455b-2a3b-47ce-82d8-e4ea2fb10a5e',
         isAdmin: false
-      }
-      return next();
+      };
     }
   }
   return next();
@@ -83,3 +105,30 @@ export async function ensurePlayerOwnerOrAdmin(req: Request, res: Response, next
   }
   return next();
 }
+
+/** Retrieves the auth token from the authorization headers; returns null if not found */
+const getAuthTokenFromHeader = (req: Request): string | null => {
+  let token = null;
+  if (req.headers.authorization) {
+    token = req.headers.authorization.replace(/^[Bb]earer /, "").trim();
+  }
+  return token;
+};
+
+/** Retrieves the auth token from the HttpOnly authToken cookie; returns null if not found */
+const getAuthTokenFromCookie = (req: Request): string | null => {
+  let token = null;
+  if (req.cookies.authToken) { token = req.cookies.authToken; }
+  return token;
+};
+
+/** Verifies and decodes an auth token, returning its payload or null if fails */
+const getTokenPayload = (token: string): UserAuthTokenDataInterface | null => {
+  let payload = null;
+  try {
+    payload = jwt.verify(token, SECRET_KEY) as UserAuthTokenDataInterface;
+  } catch (err) {
+    /* ignore invalid tokens */
+  }
+  return payload;
+};

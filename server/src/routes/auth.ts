@@ -31,6 +31,16 @@ router.post("/token", async function (req, res, next) {
   const userModel = User.getInstance();
   const user = await userModel.authenticate(username, password);
   const token = createToken(user);
+  res.cookie(
+    'authToken',
+    token,
+    {
+      httpOnly: true,
+      secure: process.env.NODE_ENV !== 'test',
+      sameSite: 'strict',
+      maxAge: 3600000 // 1 hour
+    }
+  )
   return res.json({ token });
 });
 
