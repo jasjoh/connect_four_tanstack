@@ -5,7 +5,7 @@ import { App } from './Components/App';
 
 const docRoot = document.getElementById('root');
 if (docRoot === null) {
-    throw new Error("Unable to find document root.")
+    throw new Error("Unable to find document root.");
 }
 const root = ReactDOM.createRoot(docRoot);
 
