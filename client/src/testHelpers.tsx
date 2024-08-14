@@ -12,11 +12,11 @@
  * Returns a mock 'game' object which can be passed into the Game component
  */
 function createMockGame(
-    boardState,
-    gameState=0,
-    numPlayers=0,
-    currPlayerName='foo'
-  ) {
+  boardState,
+  gameState = 0,
+  numPlayers = 0,
+  currPlayerName = 'foo'
+) {
 
   // create players for use in getting players.length
   let players = [];
@@ -32,7 +32,7 @@ function createMockGame(
     board: boardState,
     players: players,
     currPlayer: { name: currPlayerName }
-  }
+  };
 
   return game;
 }
@@ -43,7 +43,7 @@ function createMockGame(
  * - height: the height of the game board (defaults to 3)
  * - width: the width of the game board (defaults to 3)
  */
-function createBoardState(height=3, width=3) {
+function createBoardState(height = 3, width = 3) {
   let boardState = [];
   let curRow = 0;
   while (curRow < height) {
@@ -54,7 +54,7 @@ function createBoardState(height=3, width=3) {
         {
           player: null
         }
-      )
+      );
       curCol++;
     }
     boardState.push(row);
