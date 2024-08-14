@@ -21,7 +21,7 @@ import { GameDetails } from "./GameDetails";
  * RoutesList -> Main (GameList / PlayerListAndCreate)
  *
  * */
-export function RoutesList() : JSX.Element {
+export function RoutesList(): JSX.Element {
   return (
     <Routes>
       <Route path="/games/:gameId/play" element={<PlayGame />} />

@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import "./PlayerCreateForm.css"
+import "./PlayerCreateForm.css";
 import { NewPlayer } from "../server";
 
 export interface PlayerCreateFormData {
@@ -20,8 +20,8 @@ export interface PlayerCreateFormData {
  * PlayerListAndCreate -> PlayerCreateForm */
 
 export function PlayerCreateForm(
-  { createPlayer }: { createPlayer: (formData: PlayerCreateFormData) => void }
-) : JSX.Element {
+  { createPlayer }: { createPlayer: (formData: PlayerCreateFormData) => void; }
+): JSX.Element {
   // console.log("PlayerCreateForm re-rendered");
 
   const [formData, setFormData] = useState({
@@ -31,29 +31,29 @@ export function PlayerCreateForm(
   });
 
   // updates the form input as the user types
-  function handleChange(evt : React.ChangeEvent) {
+  function handleChange(evt: React.ChangeEvent) {
 
-      const htmlTarget = evt.target as HTMLFormElement;
+    const htmlTarget = evt.target as HTMLFormElement;
 
-      // look at checked if its our checkbox
-      if (htmlTarget.name === 'ai') {
-        let { name, checked } = htmlTarget;
-        setFormData( formData => ({
-          ...formData,
-          [name]: checked
-        }))
+    // look at checked if its our checkbox
+    if (htmlTarget.name === 'ai') {
+      let { name, checked } = htmlTarget;
+      setFormData(formData => ({
+        ...formData,
+        [name]: checked
+      }));
 
       // otherwise user value
-      } else {
-        let { name, value } = htmlTarget;
-        setFormData( formData => ({
-          ...formData,
-          [name]: value
-        }))
-      }
+    } else {
+      let { name, value } = htmlTarget;
+      setFormData(formData => ({
+        ...formData,
+        [name]: value
+      }));
+    }
   }
 
-  function handleSubmit(evt : React.FormEvent) {
+  function handleSubmit(evt: React.FormEvent) {
     // console.log("handleSubmit called");
     evt.preventDefault();
     createPlayer(formData as NewPlayer);
@@ -64,7 +64,7 @@ export function PlayerCreateForm(
       <div className="PlayerCreateForm-title">
         Create a New Player
       </div>
-      <form onSubmit={ handleSubmit }>
+      <form onSubmit={handleSubmit}>
         <div className="PlayerCreateForm-element">
           <label className="PlayerCreateForm-label" htmlFor="playerCreateForm-name">Player Name:</label>
           <input

@@ -34,9 +34,9 @@ interface AddPlayerToGameModalProps {
  *
  * AddPlayerToGameModal -> LoadingSpinner
  * */
-export function AddPlayerToGameModal (
-  {isOpen, closeModal, gameId, gamePlayers, addPlayerToGame} : AddPlayerToGameModalProps
-) : JSX.Element | null {
+export function AddPlayerToGameModal(
+  { isOpen, closeModal, gameId, gamePlayers, addPlayerToGame }: AddPlayerToGameModalProps
+): JSX.Element | null {
   // console.log("AddPlayerToGameModal re-rendered");
   // console.log("received gamePlayers:", gamePlayers);
 

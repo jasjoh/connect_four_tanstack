@@ -26,20 +26,20 @@ interface PlayerListingProps {
  *
  * PlayerList -> PlayerListing
  * */
-export function PlayerListing({ player, action, actionType } : PlayerListingProps) : JSX.Element {
+export function PlayerListing({ player, action, actionType }: PlayerListingProps): JSX.Element {
   // console.log("PlayerListing re-rendered");
 
   let buttonText = '';
 
-  switch(actionType) {
+  switch (actionType) {
     case 'deletePlayer':
-      buttonText = 'DELETE'
+      buttonText = 'DELETE';
       break;
     case 'removePlayer':
-      buttonText = 'REMOVE'
+      buttonText = 'REMOVE';
       break;
     case 'addPlayerToGame':
-      buttonText = 'ADD TO GAME'
+      buttonText = 'ADD TO GAME';
       break;
     default:
       break;
@@ -48,7 +48,7 @@ export function PlayerListing({ player, action, actionType } : PlayerListingProp
   /** calls the callback function when a user clicks on the button representing
    * the dynamic action associated with this listing
   */
-  function buttonClick() : void {
+  function buttonClick(): void {
     // console.log(`action button clicked; calling provided action callback`);
     action!(player.id);
   }
@@ -66,7 +66,7 @@ export function PlayerListing({ player, action, actionType } : PlayerListingProp
       >{`${player.color}`}</td>
       <td className="PlayerListing-td">{`${player.ai}`}</td>
       <td className="PlayerListing-td">{`${player.createdOn}`}</td>
-      { action ?
+      {action ?
         (
           <td className="PlayerListing-td-button" onClick={buttonClick}>
             <button>{buttonText}</button>

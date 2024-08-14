@@ -14,15 +14,15 @@ import "./GameListing.css";
  *  - None
  *
  * GameList -> GameListing */
-export function GameListing({ game } : { game: GameSummary }) : JSX.Element{
+export function GameListing({ game }: { game: GameSummary; }): JSX.Element {
   // console.log("GameListing re-rendered");
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    function gameClick() : void {
-      // console.log("Game row clicked. Navigating to:", `/games/${game.id}`);
-      navigate(`/games/${game.id}`);
-    }
+  function gameClick(): void {
+    // console.log("Game row clicked. Navigating to:", `/games/${game.id}`);
+    navigate(`/games/${game.id}`);
+  }
 
   return (
     <tr onClick={gameClick} className="GameListing-tr">

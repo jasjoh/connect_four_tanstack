@@ -47,7 +47,7 @@ export function GameCreateForm(
   function handleSubmit(evt: React.FormEvent) {
     // console.log("handleSubmit called");
     evt.preventDefault();
-    createGame({width: Number(formData.width), height: Number(formData.height)});
+    createGame({ width: Number(formData.width), height: Number(formData.height) });
   }
 
   return (

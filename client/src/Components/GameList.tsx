@@ -20,11 +20,10 @@ import "./GameList.css";
  *
  * RoutesList -> Main -> GameList
  *
- * GameList -> GameCreateForm
- *
+ * GameList -> GameCreateForm *
  * GameList -> LoadingSpinner
  *  */
-export function GameList() : JSX.Element {
+export function GameList(): JSX.Element {
   // console.log("GameList re-rendered");
 
   const [server, setServer] = useState<C4Server.Server>(C4Server.Server.getInstance());
@@ -32,14 +31,13 @@ export function GameList() : JSX.Element {
   const gameListQuery = useGameListQuery(server);
   const createGameMutation = useCreateGameMutation(server);
 
-
   /**
    * Callback function for when a user clicks button to create a new game
    * Calls createGameMutation.mutate() with provided dimensions
    */
-  const createGame = useCallback(async (dimensions : C4Server.NewGameDimensions) => {
-      await createGameMutation.mutateAsync(dimensions);
-  },[])
+  const createGame = useCallback(async (dimensions: C4Server.NewGameDimensions) => {
+    await createGameMutation.mutateAsync(dimensions);
+  }, []);
 
   if (gameListQuery.isPending) return (<LoadingSpinner />);
 
@@ -47,7 +45,7 @@ export function GameList() : JSX.Element {
 
   return (
     <div className="GameList">
-      <GameCreateForm createGame={createGame}/>
+      <GameCreateForm createGame={createGame} />
       <div className="GameList-list">
         <div className="GameList-title">
           Existing Games
@@ -65,10 +63,10 @@ export function GameList() : JSX.Element {
             </tr>
           </thead>
           <tbody className="GameList-tbody">
-            { gameListQuery.data.map( (g, index) => <GameListing
+            {gameListQuery.data.map((g, index) => <GameListing
               key={index}
-              game={g}/>
-            ) }
+              game={g} />
+            )}
           </tbody>
         </table>
       </div>

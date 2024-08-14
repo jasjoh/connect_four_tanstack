@@ -14,7 +14,7 @@ import "./Main.css";
  * Main -> GameList
  * Main -> PlayerListAndCreate
  * */
-export function Main({ subComponent: SubComponent } : { subComponent: React.ComponentType }) {
+export function Main({ subComponent: SubComponent }: { subComponent: React.ComponentType; }) {
   // console.log("Main re-rendered");
 
   return (

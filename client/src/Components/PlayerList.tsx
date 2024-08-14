@@ -33,22 +33,22 @@ interface PlayerListProps {
  *
  * PlayerList -> PlayerListing
  * */
-export function PlayerList({playerList, action, actionType} : PlayerListProps) : JSX.Element {
+export function PlayerList({ playerList, action, actionType }: PlayerListProps): JSX.Element {
   // console.log("PlayerList re-rendered");
 
   let titleText = '';
   switch (actionType) {
     case 'removePlayer':
-      titleText = 'Game Players'
+      titleText = 'Game Players';
       break;
     case 'deletePlayer':
-      titleText = 'Existing Players'
+      titleText = 'Existing Players';
       break;
     case 'addPlayer':
-      titleText = 'Available Players'
+      titleText = 'Available Players';
       break;
     default:
-      titleText = 'Game Players'
+      titleText = 'Game Players';
       break;
   }
 
@@ -72,13 +72,13 @@ export function PlayerList({playerList, action, actionType} : PlayerListProps) :
           </tr>
         </thead>
         <tbody className="PlayerList-tbody">
-        {
-          playerList.map( (p, index) => <PlayerListing
-          key={index}
-          player={p}
-          action={action}
-          actionType={actionType} />)
-        }
+          {
+            playerList.map((p, index) => <PlayerListing
+              key={index}
+              player={p}
+              action={action}
+              actionType={actionType} />)
+          }
         </tbody>
       </table>
     </div>

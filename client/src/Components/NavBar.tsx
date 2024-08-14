@@ -13,7 +13,7 @@ import "./NavBar.css";
  *
  * App -> BrowserRouter -> NavBar
  */
-export function NavBar() : JSX.Element {
+export function NavBar(): JSX.Element {
   // console.log("NavBar re-rendered");
 
   return (
