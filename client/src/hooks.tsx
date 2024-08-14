@@ -1,5 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Server, GamePlayer, NewGameDimensions, NewPlayer } from "./server";
+import {
+    Server, GamePlayer, NewGameDimensions, NewPlayer,
+    NewUserData, UserCredentials
+} from "./server";
 import { GameManagerV2 } from "./gameManagerV2";
 
 const getClientStatePollFreqInMs = 500;
@@ -178,4 +181,18 @@ export function useDeleteGameMutation(server: Server) {
             });
         }
     });
+}
+
+/** Calls Server.registerUser() with the specified user data */
+export function useRegisterUserMutation(server: Server) {
+    return useMutation({
+        mutationFn: async (userData: NewUserData) => await server.registerUser(userData)
+    })
+}
+
+/** Calls Server.authUser() with the specified credentials */
+export function useAuthUserMutation(server: Server) {
+    return useMutation({
+        mutationFn: async (credentials: UserCredentials) => await server.authUser(credentials)
+    })
 }

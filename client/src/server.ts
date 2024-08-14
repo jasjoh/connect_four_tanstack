@@ -105,6 +105,21 @@ export interface GetGamesResponseData {
   games: GameSummary[];
 }
 
+export interface NewUserData {
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface AuthResponseData {
+  token: string;
+}
+
+export interface UserCredentials {
+  username: string;
+  password: string;
+}
+
 export interface ServerInterface {
   getGames(): Promise<GameSummary[]>;
   getGame(gameId: string): Promise<GameAndTurns>;
@@ -273,6 +288,24 @@ export class Server implements ServerInterface {
     await this._request(`games/${gameId}`, {}, 'DELETE');
     // console.log("deleted game response:", data);
     return undefined;
+  }
+
+  /** Registers (creates) a new user */
+  async registerUser(userData: NewUserData): Promise<AuthResponseData> {
+    const data : AuthResponseData = await this._request(
+      `auth/register`, {userData}, 'POST'
+    );
+    console.log("register user response data:", data);
+    return data;
+  }
+
+  /** Authenticates an existing user */
+  async authUser(credentials: UserCredentials): Promise<AuthResponseData> {
+    const data : AuthResponseData = await this._request(
+      `auth/token`, {credentials}, 'POST'
+    );
+    console.log("auth user response data:", data);
+    return data;
   }
 
 }
