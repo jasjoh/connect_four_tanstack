@@ -15,20 +15,24 @@ import { Player } from "../models/player";
  * if valid, injects UserAuthTokenDataInterface into locals.user
  */
 export function authenticateJWT(req: Request, res: Response, next: NextFunction) {
-  let headerToken = null;
-  let cookieToken = null;
 
-  let headerPayload = null;
+  console.log('authenticateJWT() called.');
+  console.log(`req.cookies:`, req.cookies);
+
+  let cookieToken = null;
   let cookiePayload = null;
 
-  headerToken = getAuthTokenFromHeader(req);
-  if (headerToken !== null) {
-    console.log("found headerToken:", headerToken);
-    headerPayload = getTokenPayload(headerToken);
-    if (headerPayload !== null) {
-      console.log("found headerPayload:", headerPayload);
-    }
-  }
+  /** Head tokens deprecated */
+  // let headerPayload = null;
+  // let headerToken = null;
+  // headerToken = getAuthTokenFromHeader(req);
+  // if (headerToken !== null) {
+  //   console.log("found headerToken:", headerToken);
+  //   headerPayload = getTokenPayload(headerToken);
+  //   if (headerPayload !== null) {
+  //     console.log("found headerPayload:", headerPayload);
+  //   }
+  // }
 
   cookieToken = getAuthTokenFromCookie(req);
   if (cookieToken !== null) {
@@ -40,13 +44,7 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
   }
 
   if (cookiePayload !== null) {
-    if (headerPayload !== null && cookiePayload !== headerPayload) {
-      console.log("cookie and header based auth tokens provided, but do not match");
-      return next();
-    }
     res.locals.user = cookiePayload;
-  } else if (headerPayload !== null) {
-    res.locals.user = headerPayload;
   } else {
     if (DEFAULT_USER_ENABLED) {
       res.locals.user = {
@@ -127,7 +125,10 @@ const getTokenPayload = (token: string): UserAuthTokenDataInterface | null => {
   let payload = null;
   try {
     payload = jwt.verify(token, SECRET_KEY) as UserAuthTokenDataInterface;
-  } catch (err) {
+  } catch (err: unknown) {
+    if (err instanceof jwt.TokenExpiredError) {
+      throw new UnauthorizedError('Token has expired. Please login again.');
+    }
     /* ignore invalid tokens */
   }
   return payload;

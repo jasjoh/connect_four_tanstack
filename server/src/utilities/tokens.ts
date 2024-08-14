@@ -9,5 +9,5 @@ export const createToken = (user: UserInterface) => {
     isAdmin: user.isAdmin === true,
   };
 
-  return jwt.sign(payload, SECRET_KEY);
+  return jwt.sign(payload, SECRET_KEY, { expiresIn: 15 } );
 }

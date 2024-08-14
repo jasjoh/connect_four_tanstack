@@ -13,6 +13,10 @@ import { router as authRouter } from "./routes/auth";
 const app: Express = express();
 app.use(express.json());
 app.use(cors());
+app.use((req, res, next) => {
+  console.log(`Request headers: ${JSON.stringify(req.headers)}`);
+  next();
+})
 app.use(cookieParser())
 app.use(authenticateJWT);
 
