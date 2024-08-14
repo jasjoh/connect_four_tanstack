@@ -1,7 +1,7 @@
 import { ClientBoard, GameManagerInterface } from "./gameManager";
 import * as C4Server from "./server";
 
-export const mockPlayers : C4Server.Player[] = [
+export const mockPlayers: C4Server.Player[] = [
   {
     "id": "5136b4f8-4827-4b41-88ed-8d956e31d9f3",
     "name": "New Player 1",
@@ -18,7 +18,7 @@ export const mockPlayers : C4Server.Player[] = [
   }
 ];
 
-export const mockGamesList : C4Server.GameSummary[] = [
+export const mockGamesList: C4Server.GameSummary[] = [
   {
     "id": "daae64ed-02c3-4168-9c01-a1337afb0a8c",
     "gameState": 0,
@@ -45,7 +45,7 @@ export const mockGamesList : C4Server.GameSummary[] = [
   }
 ];
 
-export const mockGame : C4Server.GameAndTurns = {
+export const mockGame: C4Server.GameAndTurns = {
   "gameData": {
     "id": "daae64ed-02c3-4168-9c01-a1337afb0a8c",
     "boardId": 1,
@@ -2984,7 +2984,7 @@ export const mockGame : C4Server.GameAndTurns = {
   ]
 };
 
-export const mockGamePlayers : C4Server.GamePlayer[] = [
+export const mockGamePlayers: C4Server.GamePlayer[] = [
   {
     "id": "32032349-59f7-42cf-9188-b03fab2386ec",
     "name": "New Player 3",
@@ -3003,7 +3003,7 @@ export const mockGamePlayers : C4Server.GamePlayer[] = [
   }
 ];
 
-export const mockClientBoard : ClientBoard = [
+export const mockClientBoard: ClientBoard = [
   [
     {
       "playerId": null,
