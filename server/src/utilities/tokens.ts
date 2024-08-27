@@ -3,6 +3,10 @@ import { SECRET_KEY } from "../config";
 
 import { UserInterface } from "../models/user";
 
+/** expressed in seconds or a string describing a time span
+ * zeit/ms. Eg: 60, "2 days", "10h", "7d" */
+const tokenExpiration : string|number = 15;
+
 export const createToken = (user: UserInterface) => {
   const payload = {
     id: user.id,

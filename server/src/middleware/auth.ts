@@ -22,7 +22,7 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
   let cookieToken = null;
   let cookiePayload = null;
 
-  /** Head tokens deprecated */
+  /** Header tokens deprecated */
   // let headerPayload = null;
   // let headerToken = null;
   // headerToken = getAuthTokenFromHeader(req);
@@ -37,7 +37,17 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
   cookieToken = getAuthTokenFromCookie(req);
   if (cookieToken !== null) {
     console.log("found cookieToken:", cookieToken);
-    cookiePayload = getTokenPayload(cookieToken);
+
+    try {
+      cookiePayload = getTokenPayload(cookieToken);
+    } catch (err: unknown) {
+      if (err instanceof jwt.TokenExpiredError) {
+        clearAuthTokenCookie(res);
+        throw new UnauthorizedError('Token has expired. Please login again.');
+      }
+    /* ignore invalid tokens */
+    }
+
     if (cookiePayload !== null) {
       console.log("found cookiePayload:", cookiePayload);
     }
@@ -115,6 +125,7 @@ const getAuthTokenFromHeader = (req: Request): string | null => {
 
 /** Retrieves the auth token from the HttpOnly authToken cookie; returns null if not found */
 const getAuthTokenFromCookie = (req: Request): string | null => {
+  console.log(`req.cookies.authToken:`, req.cookies?.authToken);
   let token = null;
   if (req.cookies.authToken) { token = req.cookies.authToken; }
   return token;
@@ -123,13 +134,11 @@ const getAuthTokenFromCookie = (req: Request): string | null => {
 /** Verifies and decodes an auth token, returning its payload or null if fails */
 const getTokenPayload = (token: string): UserAuthTokenDataInterface | null => {
   let payload = null;
-  try {
-    payload = jwt.verify(token, SECRET_KEY) as UserAuthTokenDataInterface;
-  } catch (err: unknown) {
-    if (err instanceof jwt.TokenExpiredError) {
-      throw new UnauthorizedError('Token has expired. Please login again.');
-    }
-    /* ignore invalid tokens */
-  }
+  payload = jwt.verify(token, SECRET_KEY) as UserAuthTokenDataInterface;
   return payload;
 };
+
+/** Clears the 'authToken' cookie from an express response */
+function clearAuthTokenCookie(res: Response) {
+  res.cookie('authToken', '', { expires: new Date(0), httpOnly: true, secure: true });
+}
