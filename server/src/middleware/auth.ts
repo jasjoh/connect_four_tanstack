@@ -43,7 +43,7 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
     } catch (err: unknown) {
       if (err instanceof jwt.TokenExpiredError) {
         clearAuthTokenCookie(res);
-        throw new UnauthorizedError('Token has expired. Please login again.');
+        throw new UnauthorizedError('401300');
       }
     /* ignore invalid tokens */
     }
@@ -73,7 +73,7 @@ export function authenticateJWT(req: Request, res: Response, next: NextFunction)
 export function ensureLoggedIn(req: Request, res: Response, next: NextFunction) {
   if (res.locals.user?.id) return next();
   throw new UnauthorizedError(
-    "Unauthorized: You must be logged in to access this endpoint."
+    "401100"
   );
 }
 
@@ -84,7 +84,7 @@ export function ensureLoggedIn(req: Request, res: Response, next: NextFunction) 
 export function ensureAdmin(req: Request, res: Response, next: NextFunction) {
   if (res.locals.user?.isAdmin === true) return next();
   throw new UnauthorizedError(
-    "Unauthorized: You must be logged in as an admin to access this endpoint."
+    "401200"
   );
 }
 

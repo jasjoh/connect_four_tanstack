@@ -1,17 +1,31 @@
 /** ExpressError extends normal JS error so we can
- *  add a status when we make an instance of it.
+ *  add a status and code when we make an instance of it.
  *
  *  The error-handling middleware will return this.
  */
 
+const codeToError : { [key: string]: string; }= {
+  '401100': 'Unauthorized: You must be logged in to access this endpoint.',
+  '401200': 'Unauthorized: You must be logged in as an admin to access this endpoint.',
+  '401300': 'Authorization token has expired. Please login again.',
+}
+
 class ExpressError extends Error {
   message: string;
+  code: string;
   status: number;
 
-  constructor(message: string, status: number) {
+  constructor(messageOrCode: string, status: number) {
     super();
-    this.message = message;
-    this.status = status;
+    if (codeToError[messageOrCode]) {
+      this.code = messageOrCode;
+      this.message = codeToError[messageOrCode];
+      this.status = status;
+    } else {
+      this.message = messageOrCode;
+      this.status = status;
+      this.code = "" + (status * 1000);
+    }
   }
 }
 

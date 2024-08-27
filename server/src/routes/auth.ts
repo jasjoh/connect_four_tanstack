@@ -5,7 +5,7 @@ import authRegisterSchema from "../schemas/authRegister.json";
 import authTokenSchema from "../schemas/authToken.json";
 
 import { BadRequestError } from "../expressError";
-import { createToken } from "../utilities/tokens";
+import { createToken, tokenMaxAge } from "../utilities/tokens";
 import { User } from "../models/user";
 
 export const router: Router = Router();
@@ -38,7 +38,7 @@ router.post("/token", async function (req, res, next) {
       httpOnly: true,
       secure: process.env.NODE_ENV !== 'test',
       sameSite: 'strict',
-      maxAge: 3600000 // 1 hour
+      maxAge: tokenMaxAge
     }
   )
   return res.json({ token });

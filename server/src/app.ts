@@ -38,9 +38,10 @@ app.use(function (err: ExpressError, req: Request, res: Response, next: NextFunc
   /* istanbul ignore next (ignore for coverage) */
   const status = err.status || 500;
   const message = err.message;
+  const code = err.code;
 
   return res.status(status).json({
-    error: { message, status },
+    error: { code, message, status },
   });
 });
 

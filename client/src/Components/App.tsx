@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import "./App.css";
 
-import { userContext } from "../contexts";
+// import { userContext } from "../contexts";
 import { RoutesList } from "./RoutesList";
 import { NavBar } from "./NavBar";
 
@@ -25,18 +25,9 @@ const queryClient = new QueryClient();
  *  */
 export function App(): JSX.Element {
 
-  const [user, setUser] = useState(null);
-
-  /**
-   * On first render (useEffect), check if there is a token
-   * in local storage. If the token exists, the user was
-   * logged in last time they visited and we don't need
-   * to log them in again.
-   */
-
   return (
     <QueryClientProvider client={queryClient}>
-      <userContext.Provider value={null}>
+      {/* <userContext.Provider value={null}> */}
         <BrowserRouter>
           <div className="App">
             <NavBar />
@@ -44,7 +35,7 @@ export function App(): JSX.Element {
             <ReactQueryDevtools initialIsOpen />
           </div>
         </BrowserRouter>
-      </userContext.Provider>
+      {/* </userContext.Provider> */}
     </QueryClientProvider>
   );
 }
