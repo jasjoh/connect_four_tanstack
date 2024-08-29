@@ -5,8 +5,9 @@ import { UserInterface } from "../models/user";
 
 /** expressed in seconds or a string describing a time span
  * zeit/ms. Eg: 60, "2 days", "10h", "7d" */
-const tokenExpiration : string|number = '1h';
-export const tokenMaxAge = 360000; // 1 hour
+const tokenExpiration : string|number = 10;
+export const tokenMaxAge = 100000; // 100 seconds
+// export const tokenMaxAge = 360000; // 1 hour
 
 export const createToken = (user: UserInterface) => {
   const payload = {

@@ -1,6 +1,8 @@
 import React from "react";
 import { useState } from "react";
+
 import "./PlayerCreateForm.css";
+
 import { NewPlayer } from "../server";
 
 export interface PlayerCreateFormData {
@@ -60,12 +62,12 @@ export function PlayerCreateForm(
   }
 
   return (
-    <div className="PlayerCreateForm">
-      <div className="PlayerCreateForm-title">
+    <div className="Common-form">
+      <div className="Common-formTitle">
         Create a New Player
       </div>
       <form onSubmit={handleSubmit}>
-        <div className="PlayerCreateForm-element">
+        <div className="Common-formElement">
           <label className="PlayerCreateForm-label" htmlFor="playerCreateForm-name">Player Name:</label>
           <input
             className="PlayerCreateForm-inputName"
@@ -75,7 +77,7 @@ export function PlayerCreateForm(
             onChange={handleChange}>
           </input>
         </div>
-        <div className="PlayerCreateForm-element">
+        <div className="Common-formElement">
           <label className="PlayerCreateForm-label" htmlFor="playerCreateForm-color">Color:</label>
           <input
             className="PlayerCreateForm-inputColor"
@@ -86,7 +88,7 @@ export function PlayerCreateForm(
             onChange={handleChange}>
           </input>
         </div>
-        <div className="PlayerCreateForm-element">
+        <div className="Common-formElement">
           <label className="PlayerCreateForm-label" htmlFor="playerCreateForm-ai">Make AI Player:</label>
           <input
             className="PlayerCreateForm-inputCheckBox"
@@ -97,7 +99,7 @@ export function PlayerCreateForm(
             onChange={handleChange}>
           </input>
         </div>
-        <div><button className="PlayerCreateForm-button">Add Player</button></div>
+        <div><button className="Common-formButton">Add Player</button></div>
       </form>
     </div>
   );

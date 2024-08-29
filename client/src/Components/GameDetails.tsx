@@ -88,7 +88,7 @@ export function GameDetails(): JSX.Element {
 
   if (gamePlayers.isPending || gameDetails.isPending) return (<LoadingSpinner />);
 
-  if (gamePlayers.error || gameDetails.error) return (<div>'A TanStack error has occurred ...'</div>);
+  if (gamePlayers.error || gameDetails.error) return (<div>'An unexpected error has occurred ...'</div>);
 
   return (
     <div className="GameDetails">
@@ -98,13 +98,13 @@ export function GameDetails(): JSX.Element {
         gamePlayers={gamePlayers.data}
         closeModal={closeModal}
         addPlayerToGame={addPlayerToGame} />
-      <div className="GameDetails-gameDetails">
-        <div className="GameDetails-gameDetails-title">Game Details</div>
+      <div className="Common-form">
+        <div className="Common-formTitle">Game Details</div>
         <GameDetailsPropertyList gameData={gameDetails.data.gameData} />
         <div className="GameDetails-buttons">
-          <button onClick={playGame} className="GameDetails-gameDetails-button">Play</button>
-          <button onClick={deleteGame} className="GameDetails-gameDetails-button">Delete</button>
-          <button onClick={openModal} className="GameDetails-gameDetails-button">Add Player</button>
+          <button onClick={playGame} className="Common-formButton">Play</button>
+          <button onClick={deleteGame} className="Common-formButton">Delete</button>
+          <button onClick={openModal} className="Common-formButton">Add Player</button>
         </div>
       </div>
       <div className="GameDetails-gamePlayers">

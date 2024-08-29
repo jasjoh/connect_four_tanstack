@@ -51,7 +51,7 @@ export function PlayerListAndCreate() {
 
   if (playersQuery.isPending) return (<LoadingSpinner />);
 
-  if (playersQuery.error) return (<div>'A TanStack error has occurred ...'</div>);
+  if (playersQuery.error) return (<div>'An unexpected error has occurred ...'</div>);
 
   return (
     <div className="PlayerListAndCreate">

@@ -200,7 +200,7 @@ export class User {
       }
     }
 
-    throw new UnauthorizedError("Invalid username/password");
+    throw new UnauthorizedError("401400");
 
   }
 }

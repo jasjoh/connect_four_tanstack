@@ -1,5 +1,13 @@
 import axios from "axios";
 
+/**
+ * This ensure all axios request leverage our httpOnly auth token.
+ * Since all our calls are sent to our service only and all calls require
+ * our auth token (or return it), this makes sense even though it adds
+ * a bit more risk.
+ */
+axios.defaults.withCredentials = true;
+
 let BASE_URL: string | undefined;
 
 process.env.NODE_ENV === 'production' ?
@@ -177,8 +185,9 @@ export class Server implements ServerInterface {
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         console.error("API Error:", err.response);
-        let message = err.response?.data.error.message as string | string[];
-        throw Array.isArray(message) ? message : [message];
+        // let message = err.response?.data.error.message as string | string[];
+        // throw Array.isArray(message) ? message : [message];
+        throw err;
       } else {
         throw err;
       }
@@ -302,7 +311,7 @@ export class Server implements ServerInterface {
   /** Authenticates an existing user */
   async authUser(credentials: UserCredentials): Promise<AuthResponseData> {
     const data : AuthResponseData = await this._request(
-      `auth/token`, {credentials}, 'POST'
+      `auth/token`, credentials, 'POST'
     );
     console.log("auth user response data:", data);
     return data;

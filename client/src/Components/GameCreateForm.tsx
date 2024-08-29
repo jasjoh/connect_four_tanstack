@@ -51,12 +51,12 @@ export function GameCreateForm(
   }
 
   return (
-    <div className="GameCreateForm">
+    <div className="Common-form">
       <form onSubmit={handleSubmit}>
-        <div className="GameCreateForm-title">
+        <div className="Common-formTitle">
           Create a New Game
         </div>
-        <div className="GameCreateForm-element">
+        <div className="Common-formElement">
           <label className="GameCreateForm-label" htmlFor="gameCreateForm-name">Board Width:</label>
           <input
             className="GameCreateForm-input"
@@ -66,7 +66,7 @@ export function GameCreateForm(
             onChange={handleChange}>
           </input>
         </div>
-        <div className="GameCreateForm-element">
+        <div className="Common-formElement">
           <label className="GameCreateForm-label" htmlFor="gameCreateForm-name">Board Height:</label>
           <input
             className="GameCreateForm-input"
@@ -76,7 +76,7 @@ export function GameCreateForm(
             onChange={handleChange}>
           </input>
         </div>
-        <div><button className="GameCreateForm-button">Create</button></div>
+        <div><button className="Common-formButton">Create</button></div>
       </form>
     </div>
   );

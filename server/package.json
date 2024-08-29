@@ -14,8 +14,8 @@
   },
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/server.js",
-    "dev": "nodemon src/server.ts",
+    "start": "NODE_ENV=prod node dist/server.js",
+    "dev": "NODE_ENV=dev nodemon src/server.ts",
     "live": "npx tsc && npm run start"
   },
   "name": "connect_four_express",

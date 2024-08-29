@@ -31,12 +31,13 @@ router.post("/token", async function (req, res, next) {
   const userModel = User.getInstance();
   const user = await userModel.authenticate(username, password);
   const token = createToken(user);
+  console.log('process.env.NODE_ENV:', process.env.NODE_ENV);
   res.cookie(
     'authToken',
     token,
     {
       httpOnly: true,
-      secure: process.env.NODE_ENV !== 'test',
+      secure: process.env.NODE_ENV === 'prod',
       sameSite: 'strict',
       maxAge: tokenMaxAge
     }

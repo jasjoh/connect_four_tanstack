@@ -8,6 +8,7 @@ const codeToError : { [key: string]: string; }= {
   '401100': 'Unauthorized: You must be logged in to access this endpoint.',
   '401200': 'Unauthorized: You must be logged in as an admin to access this endpoint.',
   '401300': 'Authorization token has expired. Please login again.',
+  '401400': 'Authorization failed. Invalid credentials.',
 }
 
 class ExpressError extends Error {

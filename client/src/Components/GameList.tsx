@@ -1,11 +1,13 @@
 import React from "react";
 import { useState, useCallback } from "react";
 import { useCreateGameMutation, useGameListQuery } from "../hooks";
+import { AxiosError } from "axios";
 
 import * as C4Server from "../server";
 
 import { GameListing } from "./GameListing";
 import { GameCreateForm } from "./GameCreateForm";
+import { AccountLoginForm } from "./AccountLoginForm";
 import { LoadingSpinner } from "./LoadingSpinner";
 
 import "./GameList.css";
@@ -41,7 +43,16 @@ export function GameList(): JSX.Element {
 
   if (gameListQuery.isPending) return (<LoadingSpinner />);
 
-  if (gameListQuery.error) return (<div>'A TanStack error has occurred ...'</div>);
+  if (gameListQuery.error) {
+    if (gameListQuery.error instanceof AxiosError) {
+      const errorCode = gameListQuery.error.response?.data?.error?.code;
+      if (errorCode === '401100') {
+        return (<AccountLoginForm />)
+      }
+      return (<div>'An unexpected network error has occurred ...'</div>);
+    }
+    return (<div>'An unexpected error has occurred ...'</div>);
+  }
 
   return (
     <div className="GameList">

@@ -1,7 +1,15 @@
-/* .PlayerCreateForm {
-  border-width: 2px;
-  border-style: solid;
-  margin-top: 2px;
-  margin-bottom: 2px;
-  padding: 5px;
-} */
+.PlayerCreateForm-label {
+  width: 120px;
+  margin-right: 5px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.PlayerCreateForm-inputColor {
+  width: 50px;
+  block-size: 21px;
+}
+
+.PlayerCreateForm-inputCheckBox {
+  vertical-align: middle;
+}

@@ -49,7 +49,7 @@ export function AddPlayerToGameModal(
 
   if (availableGamePlayersQuery.isPending) return (<LoadingSpinner />);
 
-  if (availableGamePlayersQuery.error) return (<div>'A TanStack error has occurred ...'</div>);
+  if (availableGamePlayersQuery.error) return (<div>'An unexpected error has occurred ...'</div>);
 
   return (
     <div className="AddPlayerToGameModal">
