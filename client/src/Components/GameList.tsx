@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useCallback } from "react";
+import { useNavigate } from 'react-router-dom';
 import { useCreateGameMutation, useGameListQuery } from "../hooks";
 import { AxiosError } from "axios";
 
@@ -33,6 +34,8 @@ export function GameList(): JSX.Element {
   const gameListQuery = useGameListQuery(server);
   const createGameMutation = useCreateGameMutation(server);
 
+  const navigate = useNavigate();
+
   /**
    * Callback function for when a user clicks button to create a new game
    * Calls createGameMutation.mutate() with provided dimensions
@@ -47,7 +50,7 @@ export function GameList(): JSX.Element {
     if (gameListQuery.error instanceof AxiosError) {
       const errorCode = gameListQuery.error.response?.data?.error?.code;
       if (errorCode === '401100') {
-        return (<AccountLoginForm />)
+        navigate(`/login`);
       }
       return (<div>'An unexpected network error has occurred ...'</div>);
     }

@@ -1,0 +1,9 @@
+.AccountLoginForm-label {
+  width: 75px;
+  margin-right: 5px;
+  display: inline-block;
+}
+
+.AccountLoginForm-input {
+  width: 150px;
+}

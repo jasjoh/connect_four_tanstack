@@ -1,4 +1,6 @@
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import {
     Server, GamePlayer, NewGameDimensions, NewPlayer,
     NewUserData, UserCredentials
@@ -192,7 +194,12 @@ export function useRegisterUserMutation(server: Server) {
 
 /** Calls Server.authUser() with the specified credentials */
 export function useAuthUserMutation(server: Server) {
+    const navigate = useNavigate();
+
     return useMutation({
-        mutationFn: async (credentials: UserCredentials) => await server.authUser(credentials)
+        mutationFn: async (credentials: UserCredentials) => await server.authUser(credentials),
+        onSuccess: () => {
+            navigate('/games');
+        }
     })
 }
